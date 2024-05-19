@@ -12,8 +12,8 @@ try:
 except ImportError as e:
     print(f"Error importing StraddleService: {e}")
 
-# Initialize Flask app
-#app = Flask(__name__)
+#Initialize Flask app
+app = Flask(__name__)
 
 with open('db.json', 'r') as f:
     data = json.load(f)
@@ -21,32 +21,40 @@ with open('db.json', 'r') as f:
 #return jsonify(data), 200
 
 # FOR PASSING THE DATA TO SERVICE
-#strategy = Strategyservice(data)
-#strategy.process_data(data)
+strategy_id = 29
+strategy = Strategyservice(data,strategy_id)
+#strategy.process_data(data,strategy_id)
 
 # FOR GETTING THE DISTINCT STRATEGY NAMES
-repo = StraddleRepo()
-repo.getStrategyName()
+#strategy.getStrategyName()
 
-#FOR GETTING THE STRATEGY DETAILS
-strategy_id = 23  # Replace 1 with the desired strategy_id
-strategy_details = repo.getStrategyDetails(strategy_id)
 
-# Print the strategy details
-for row in strategy_details:
-    print(row)
+#FOR GETTING THE STRATEGY DETAILS  # Replace 1 with the desired strategy_id
+#strategy_details = strategy.getStrategyDetails(strategy_id)
 
-'''
-@app.route('/get_data', methods=['POST'])
+
+@app.route('/get_strategy_name', methods=['GET'])
 def get_data():
-    with open('db.json', 'r') as f:
-        data = json.load(f)
     #print("Data from db.json:", data) 
-    return jsonify(data), 200
-    strategy_instance = Strategy()
-    strategy_instance.process_data(data)
-'''
+    #strategy = Strategyservice(data)
+    strategy_name = strategy.getStrategyName()
+    return jsonify(strategy_name), 200
 
-#if __name__ == '__main__':
+@app.route('/save_strategy', methods=['POST'])
+def save_strategy():
+    strategy.process_data(data,strategy_id)
+    return jsonify(data),200
 
-    #app.run(debug=True)
+
+@app.route('/get_strategy_details', methods=['GET'])
+def get_strategy_details():
+    #print("Data from db.json:", data) 
+    #strategy = Strategyservice(data)
+    strategy_details = strategy.getStrategyDetails(strategy_id)
+    return jsonify(strategy_details), 200
+
+try:
+    if __name__ == '__main__':
+        app.run(debug=True,use_reloader=False)
+except SystemExit as e:
+    print("SystemExit Exception:", e)
