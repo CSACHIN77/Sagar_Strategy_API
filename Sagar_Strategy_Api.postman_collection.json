@@ -1,0 +1,37 @@
+{
+	"info": {
+		"_postman_id": "1650bc6f-2208-4f40-854a-3b25ccf53e73",
+		"name": "Sagar_Strategy_Api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "24840641"
+	},
+	"item": [
+		{
+			"name": "http://127.0.0.1:5000/get_strategy_name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:5000/get_strategy_name"
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/save_strategy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": "http://127.0.0.1:5000/save_strategy"
+			},
+			"response": []
+		},
+		{
+			"name": "http://127.0.0.1:5000/get_strategy_details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:5000/get_strategy_details"
+			},
+			"response": []
+		}
+	]
+}
