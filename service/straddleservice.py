@@ -4,11 +4,11 @@ import json
 
         
 class Strategyservice:
-    def __init__(self,data,strategyId):
+    def __init__(self,data):
         self.data = data
-        self.strategyId = strategyId
+        #self.strategyId = strategyId
     
-    def process_data(self, data,strategyId):
+    def process_data(self, data,):
         strategy = Strategy(id = data['strategies'][0]['id'], name= data['strategies'][0]['name'],underlying= data['strategies'][0]['underlying'],strategy_type= data['strategies'][0]['strategy_type'],implied_futures_expiry= data['strategies'][0]['implied_futures_expiry'],entry_time= data['strategies'][0]['entry_time'],last_entry_time= data['strategies'][0]['last_entry_time'],exit_time= data['strategies'][0]['exit_time'],square_off= data['strategies'][0]['square_off'],overall_sl= data['strategies'][0]['overall_sl'],overall_target= data['strategies'][0]['overall_target'],trailing_options= data['strategies'][0]['trailing_options'],profit_reaches= data['strategies'][0]['profit_reaches'],lock_profit= data['strategies'][0]['lock_profit'],increase_in_profit= data['strategies'][0]['increase_in_profit'],trail_profit= data['strategies'][0]['trail_profit'])
         #.straddle_repo.insert_strategy_data(self.id,self.name,self.underlying,self.strategy_type,self.implied_futures_expiry,self.entry_time,self.last_entry_time
                                                 #,self.exit_time,self.square_off,self.overall_sl,self.overall_target,self.trailing_options,self.profit_reaches
@@ -80,6 +80,7 @@ class Strategyservice:
         
     def getStrategyDetails(self, strategyId):
         print(strategyId)
+        print('2')
         repo = StraddleRepo()
         strategy_details = repo.getStrategyDetails(strategyId)
         return strategy_details
