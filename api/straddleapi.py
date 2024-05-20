@@ -1,56 +1,72 @@
 import os
 import json
+import sys
+
+current_directory = os.path.dirname('straddleapi.py')
+# Construct the path to the parent directory
+parent_directory = os.path.abspath(os.path.join(current_directory, '..'))
+# Add the parent directory to the system path
+sys.path.append(parent_directory)#os.chdir('D:/Rupendra/Work/Sagar/Sagar_Strategy_API')
+#print(f"Changed directory to: {os.getcwd()}")
+from repo.straddlerepo import StraddleRepo
 from flask import Flask, request, jsonify
 
 
-os.chdir('E:/Sagar_Strategy_API-main')
-print(f"Changed directory to: {os.getcwd()}")
+# Change directory
+#os.chdir('C:/Ajay')
+#print(f"Changed directory to: {os.getcwd()}")
 
-from repo.straddlerepo import StraddleRepo
+# Attempt to import StraddleRepo and Strategyservice
+try:
+    from repo.straddlerepo import StraddleRepo
+except ImportError as e:
+    print(f"Error importing StraddleRepo: {e}")
+
 try:
     from service.straddleservice import Strategyservice
 except ImportError as e:
-    print(f"Error importing StraddleService: {e}")
+    print(f"Error importing Strategyservice: {e}")
 
-#Initialize Flask app
+# Initialize Flask app
 app = Flask(__name__)
 
-with open('db.json', 'r') as f:
-    data = json.load(f)
-#print("Data from db.json:", data) 
-#return jsonify(data), 200
-
-# FOR PASSING THE DATA TO SERVICE
-strategy_id = 29
-strategy = Strategyservice(data,strategy_id)
-#strategy.process_data(data,strategy_id)
-
-# FOR GETTING THE DISTINCT STRATEGY NAMES
-#strategy.getStrategyName()
-
-
-#FOR GETTING THE STRATEGY DETAILS  # Replace 1 with the desired strategy_id
-#strategy_details = strategy.getStrategyDetails(strategy_id)
-
-
 @app.route('/get_strategy_name', methods=['GET'])
-def get_data():
-    #print("Data from db.json:", data) 
-    #strategy = Strategyservice(data)
-    strategy_name = strategy.getStrategyName()
-    return jsonify(strategy_name), 200
+def get_strategy_name():
+    try:
+        data=[]
+        strategy = Strategyservice(data)
+        strategy_name = strategy.getStrategyName()
+        return jsonify(strategy_name), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/save_strategy', methods=['POST'])
 def save_strategy():
-    strategy.process_data(data,strategy_id)
-    return jsonify(data),200
+    try:
+        data = request.get_json()
+        print("Received JSON data:", data)
+        
+        # Example processing (you might want to pass this data to Strategyservice)
+        strategy = Strategyservice(data)
+        strategy.process_data(data)
+        
+        response = {
+            "status": "success",
+            "received_data": data
+        }
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
-@app.route('/get_strategy_details', methods=['GET'])
-def get_strategy_details():
+@app.route('/get_strategy_details/<int:strategy_id>', methods=['GET'])
+def get_strategy_details(strategy_id):
     #print("Data from db.json:", data) 
-    #strategy = Strategyservice(data)
+    data =[]
+    strategy = Strategyservice(data)
+    print('1')
     strategy_details = strategy.getStrategyDetails(strategy_id)
+    
     return jsonify(strategy_details), 200
 
 try:
