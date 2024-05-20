@@ -9,7 +9,9 @@ database="sagar_strategy"
 
 def convert_to_json(result,strategy_id):
     strategies = []
+    print('5')
     mycursor = mydb.cursor()
+    print(result)
     for row in result:
         strategy = {
             "id": row["id"],
@@ -32,65 +34,77 @@ def convert_to_json(result,strategy_id):
             
             }
     
+        
     # Fetch data for legs related to the current strategy
-        leg_sql = "SELECT * FROM leg WHERE strategy_id = %s"  # Replace 'legs' and 'strategy_id' with your table and column names
+        print('6')
+        leg_sql = """SELECT id,atm_straddle_premium,closest_premium,leg_no,lots,no_of_reentry,option_type,percent_of_atm_strike_sign,percent_of_atm_strike_value,position,range_breakout,roll_strike,roll_strike_increase_in_profit,roll_strike_lock_profit,roll_strike_lock_profit_sign,
+                    roll_strike_profit_reaches,roll_strike_stop_loss,roll_strike_stop_loss_sign,roll_strike_strike_type,roll_strike_trail_profit,roll_strike_trail_profit_sign,roll_strike_trailing_options,
+                    simple_momentum,simple_momentum_direction,simple_momentum_range_breakout,simple_momentum_sign,straddle_width_sign,straddle_width_value,strategy_id,strike_selection_criteria,
+                    strike_selection_criteria_increase_in_profit,strike_selection_criteria_lock_profit,strike_selection_criteria_lock_profit_sign,strike_selection_criteria_profit_reaches,strike_selection_criteria_stop_loss,
+                    strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,strike_selection_criteria_trailing_options,strike_type FROM leg WHERE strategy_id = %s"""  # Replace 'legs' and 'strategy_id' with your table and column names
         mycursor.execute(leg_sql, (strategy_id,))
         leg_rows = mycursor.fetchall()
-    
+        print(leg_rows)
     # Iterate over leg rows and format data into the desired structure
         for leg_row in leg_rows:
+            print('9')
+            print(leg_row)
             leg = {
-                "atm_straddle_premium": row["atm_straddle_premium"],
-                "closest_premium": row["closest_premium"],
-                "expiry": row["expiry"],
-                "id": row["id"],
-                "leg_no": row["leg_no"],
-                "lots": row["lots"],
-                "no_of_reentry": row["no_of_reentry"],
-                "option_type": row["option_type"],
-                "percent_of_atm_strike_sign": row["percent_of_atm_strike_sign"],
-                "percent_of_atm_strike_value": row["percent_of_atm_strike_value"],
-                "position": row["position"],
-                "range_breakout": row["range_breakout"],
-                "roll_strike": row["roll_strike"],
-                "roll_strike_increase_in_profit": row["roll_strike_increase_in_profit"],
-                "roll_strike_lock_profit": row["roll_strike_lock_profit"],
-                "roll_strike_lock_profit_sign": row["roll_strike_lock_profit_sign"],
-                "roll_strike_profit_reaches": row["roll_strike_profit_reaches"],
-                "roll_strike_stop_loss": row["roll_strike_stop_loss"],
-                "roll_strike_stop_loss_sign": row["roll_strike_stop_loss_sign"],
-                "roll_strike_strike_type": row["roll_strike_strike_type"],
-                "roll_strike_trail_profit": row["roll_strike_trail_profit"],
-                "roll_strike_trail_profit_sign": row["roll_strike_trail_profit_sign"],
-                "roll_strike_trailing_options": row["roll_strike_trailing_options"],
-                "simple_momentum": row["simple_momentum"],
-                "simple_momentum_direction": row["simple_momentum_direction"],
-                "simple_momentum_range_breakout": row["simple_momentum_range_breakout"],
-                "simple_momentum_sign": row["simple_momentum_sign"],
-                "straddle_width_sign": row["straddle_width_sign"],
-                "straddle_width_value": row["straddle_width_value"],
-                "strategy_id": row["strategy_id"],
-                "strike_selection_criteria": row["strike_selection_criteria"],
-                "strike_selection_criteria_increase_in_profit": row["strike_selection_criteria_increase_in_profit"],
-                "strike_selection_criteria_lock_profit": row["strike_selection_criteria_lock_profit"],
-                "strike_selection_criteria_lock_profit_sign": row["strike_selection_criteria_lock_profit_sign"],
-                "strike_selection_criteria_profit_reaches": row["strike_selection_criteria_profit_reaches"],
-                "strike_selection_criteria_stop_loss": row["strike_selection_criteria_stop_loss"],
-                "strike_selection_criteria_stop_loss_sign": row["strike_selection_criteria_stop_loss_sign"],
-                "strike_selection_criteria_trail_profit": row["strike_selection_criteria_trail_profit"],
-                "strike_selection_criteria_trail_profit_sign": row["strike_selection_criteria_trail_profit_sign"],
-                "strike_selection_criteria_trailing_options": row["strike_selection_criteria_trailing_options"],
-                "strike_type": row["strike_type"]
-            }
+                "atm_straddle_premium": leg_row[1],
+                "closest_premium": leg_row[2],
+				"id": leg_row[0],
+                "leg_no": leg_row[3],
+                "lots": leg_row[4],
+                "no_of_reentry": leg_row[5],
+                "option_type": leg_row[6],
+                "percent_of_atm_strike_sign": leg_row[7],
+                "percent_of_atm_strike_value": leg_row[8],
+                "position": leg_row[9],
+                "range_breakout": leg_row[10],
+                "roll_strike": leg_row[11],
+                "roll_strike_increase_in_profit": leg_row[12],
+                "roll_strike_lock_profit": leg_row[13],
+                "roll_strike_lock_profit_sign": leg_row[14],
+                "roll_strike_profit_reaches": leg_row[15],
+                "roll_strike_stop_loss": leg_row[16],
+                "roll_strike_stop_loss_sign": leg_row[17],
+                "roll_strike_strike_type": leg_row[18],
+                "roll_strike_trail_profit": leg_row[19],
+                "roll_strike_trail_profit_sign": leg_row[20],
+                "roll_strike_trailing_options": leg_row[21],
+                "simple_momentum": leg_row[22],
+                "simple_momentum_direction": leg_row[23],
+                "simple_momentum_range_breakout": leg_row[24],
+                "simple_momentum_sign": leg_row[25],
+                "straddle_width_sign": leg_row[26],
+                "straddle_width_value": leg_row[27],
+                "strategy_id": leg_row[28],
+                "strike_selection_criteria": leg_row[29],
+                "strike_selection_criteria_increase_in_profit": leg_row[30],
+                "strike_selection_criteria_lock_profit": leg_row[31],
+                "strike_selection_criteria_lock_profit_sign": leg_row[32],
+                "strike_selection_criteria_profit_reaches": leg_row[33],
+                "strike_selection_criteria_stop_loss": leg_row[34],
+                "strike_selection_criteria_stop_loss_sign": leg_row[35],
+                "strike_selection_criteria_trail_profit": leg_row[36],
+                "strike_selection_criteria_trail_profit_sign": leg_row[37],
+                "strike_selection_criteria_trailing_options": leg_row[38],
+                "strike_type": leg_row[39]
+                }
+            print(leg)
             strategy["legs"].append(leg)
-            #print(strategy)
+                    #print(strategy)
     strategies.append(strategy)
-    print(strategy)
-    data = {"strategies": strategies}
+            #print(strategy)
+    data = {"strategies": strategy}
+            
     return data
 
+
 class StraddleRepo:
-        
+    def __init__(self):
+        pass
+    
     def insert_data(self,strategy_data,legs_data):
        
         print(strategy_data.id)
@@ -166,25 +180,35 @@ class StraddleRepo:
                 print("Error:", e)
                 
     def getStrategyName(self):
+        #print("1")
         strategy_names = []
         mycursor = mydb.cursor()
-        query = "SELECT DISTINCT name FROM strategy"
+        query = "SELECT id, name FROM strategy"
         mycursor.execute(query)
+        #print("2")
         result = mycursor.fetchall()
+        #print(result)
         for row in result:
-            strategy_names.append(row[0])
+            strategy = {
+                "id": row[0],
+                "name": row[1]
+            }
+            #print(strategy)
+            strategy_names.append(strategy)
+        print(strategy_names)
         return strategy_names
 
     def getStrategyDetails(self, strategy_id):
+        print('3')
         mycursor = mydb.cursor(dictionary=True)
-        query = """
-        SELECT strategy.*, leg.*
+        query =  """
+        SELECT *
         FROM strategy
-        INNER JOIN leg ON strategy.id = leg.strategy_id
         WHERE strategy.id = %s
         """
         mycursor.execute(query, (strategy_id,))
         result = mycursor.fetchall()
+        print('4')
         stategy_details = convert_to_json(result,strategy_id)
         #for row in result:
          #   strategy_details.append(row)
