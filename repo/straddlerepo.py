@@ -167,17 +167,54 @@ class StraddleRepo:
         inserted_id = mycursor.lastrowid
         print("Inserted ID:", inserted_id)
             #print(leg_value.strategy_id)
-        query= """INSERT INTO leg (strategy_id,leg_no,lots,position,option_type,expiry,no_of_reentry,strike_selection_criteria,closest_premium,strike_type,straddle_width_value,straddle_width_sign,percent_of_atm_strike_value,percent_of_atm_strike_sign,atm_straddle_premium,strike_selection_criteria_stop_loss,strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trailing_options,strike_selection_criteria_profit_reaches,strike_selection_criteria_lock_profit,strike_selection_criteria_lock_profit_sign,strike_selection_criteria_increase_in_profit,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,roll_strike,roll_strike_strike_type,roll_strike_stop_loss,roll_strike_stop_loss_sign,roll_strike_trailing_options,roll_strike_profit_reaches,roll_strike_lock_profit,roll_strike_lock_profit_sign,roll_strike_increase_in_profit,roll_strike_trail_profit,roll_strike_trail_profit_sign,simple_momentum_range_breakout,simple_momentum,simple_momentum_sign,simple_momentum_direction,range_breakout) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+        
+        leg_query = """
+            UPDATE leg
+            SET
+                lots = %s, position = %s, option_type = %s, expiry = %s, no_of_reentry = %s, strike_selection_criteria = %s, 
+                closest_premium = %s, strike_type = %s, straddle_width_value = %s, straddle_width_sign = %s, 
+                percent_of_atm_strike_value = %s, percent_of_atm_strike_sign = %s, atm_straddle_premium = %s, 
+                strike_selection_criteria_stop_loss = %s, strike_selection_criteria_stop_loss_sign = %s, 
+                strike_selection_criteria_trailing_options = %s, strike_selection_criteria_profit_reaches = %s, 
+                strike_selection_criteria_lock_profit = %s, strike_selection_criteria_lock_profit_sign = %s, 
+                strike_selection_criteria_increase_in_profit = %s, strike_selection_criteria_trail_profit = %s, 
+                strike_selection_criteria_trail_profit_sign = %s, roll_strike = %s, roll_strike_strike_type = %s, 
+                roll_strike_stop_loss = %s, roll_strike_stop_loss_sign = %s, roll_strike_trailing_options = %s, 
+                roll_strike_profit_reaches = %s, roll_strike_lock_profit = %s, roll_strike_lock_profit_sign = %s, 
+                roll_strike_increase_in_profit = %s, roll_strike_trail_profit = %s, roll_strike_trail_profit_sign = %s, 
+                simple_momentum_range_breakout = %s, simple_momentum = %s, simple_momentum_sign = %s, 
+                simple_momentum_direction = %s, range_breakout = %s
+            WHERE
+                strategy_id = %s AND id = %s
+                """
         for leg_value in legs_data:
-            values = (inserted_id,leg_value.leg_no,leg_value.lots,leg_value.position,leg_value.option_type,leg_value.expiry,leg_value.no_of_reentry,leg_value.strike_selection_criteria,leg_value.closest_premium,leg_value.strike_type,leg_value.straddle_width_value,leg_value.straddle_width_sign,leg_value.percent_of_atm_strike_value,leg_value.percent_of_atm_strike_sign,leg_value.atm_straddle_premium,leg_value.strike_selection_criteria_stop_loss,leg_value.strike_selection_criteria_stop_loss_sign,leg_value.strike_selection_criteria_trailing_options,leg_value.strike_selection_criteria_profit_reaches,leg_value.strike_selection_criteria_lock_profit,leg_value.strike_selection_criteria_lock_profit_sign,leg_value.strike_selection_criteria_increase_in_profit,leg_value.strike_selection_criteria_trail_profit,leg_value.strike_selection_criteria_trail_profit_sign,leg_value.roll_strike,leg_value.roll_strike_strike_type,leg_value.roll_strike_stop_loss,leg_value.roll_strike_stop_loss_sign,leg_value.roll_strike_trailing_options,leg_value.roll_strike_profit_reaches,leg_value.roll_strike_lock_profit,leg_value.roll_strike_lock_profit_sign,leg_value.roll_strike_increase_in_profit,leg_value.roll_strike_trail_profit,leg_value.roll_strike_trail_profit_sign,leg_value.simple_momentum_range_breakout,leg_value.simple_momentum,leg_value.simple_momentum_sign,leg_value.simple_momentum_direction,leg_value.range_breakout,)
-            #print(query)
-            #print(values)
-            try:
-                mycursor.execute(query, values)
+        # Fetch leg_id from the database
+            leg_id_query = "SELECT id FROM leg WHERE strategy_id = %s AND leg_no = %s"
+            leg_id_values = (strategyId, leg_value.leg_no)
+            mycursor.execute(leg_id_query, leg_id_values)
+            result = mycursor.fetchone()
+            if result:
+                leg_id = result[0]
+            # Now update the leg data using the fetched leg_id
+                leg_values = (leg_value.lots, leg_value.position, leg_value.option_type, leg_value.expiry, leg_value.no_of_reentry, leg_value.strike_selection_criteria, 
+                          leg_value.closest_premium, leg_value.strike_type, leg_value.straddle_width_value, leg_value.straddle_width_sign, 
+                          leg_value.percent_of_atm_strike_value, leg_value.percent_of_atm_strike_sign, leg_value.atm_straddle_premium, 
+                          leg_value.strike_selection_criteria_stop_loss, leg_value.strike_selection_criteria_stop_loss_sign, 
+                          leg_value.strike_selection_criteria_trailing_options, leg_value.strike_selection_criteria_profit_reaches, 
+                          leg_value.strike_selection_criteria_lock_profit, leg_value.strike_selection_criteria_lock_profit_sign, 
+                          leg_value.strike_selection_criteria_increase_in_profit, leg_value.strike_selection_criteria_trail_profit, 
+                          leg_value.strike_selection_criteria_trail_profit_sign, leg_value.roll_strike, leg_value.roll_strike_strike_type, 
+                          leg_value.roll_strike_stop_loss, leg_value.roll_strike_stop_loss_sign, leg_value.roll_strike_trailing_options, 
+                          leg_value.roll_strike_profit_reaches, leg_value.roll_strike_lock_profit, leg_value.roll_strike_lock_profit_sign, 
+                          leg_value.roll_strike_increase_in_profit, leg_value.roll_strike_trail_profit, leg_value.roll_strike_trail_profit_sign, 
+                          leg_value.simple_momentum_range_breakout, leg_value.simple_momentum, leg_value.simple_momentum_sign, 
+                          leg_value.simple_momentum_direction, leg_value.range_breakout, strategyId, leg_id)
+                mycursor.execute(leg_query, leg_values)
                 mydb.commit()
-                print("Insertion successful!")
-            except Exception as e:
-                print("Error:", e)
+                print("Update successful for leg data with strategy ID:", strategyId, "and leg ID:", leg_id)
+            else:
+                print("Leg with leg_no {} not found for strategy with ID {}".format(leg_value.leg_no, strategyId))
+        
                 
     def getStrategyName(self):
         #print("1")
