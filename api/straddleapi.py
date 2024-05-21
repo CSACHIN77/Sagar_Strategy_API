@@ -48,7 +48,7 @@ def save_strategy():
         
         # Example processing (you might want to pass this data to Strategyservice)
         strategy = Strategyservice(data)
-        strategy.process_data(data)
+        strategy.process_insert_data(data)
         
         response = {
             "status": "success",
@@ -58,6 +58,23 @@ def save_strategy():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/update_strategy/<int:strategy_id>', methods=['POST'])
+def update_strategy(strategy_id):
+    try:
+        data = request.get_json()
+        print("Received JSON data:", data)
+        
+        # Example processing (you might want to pass this data to Strategyservice)
+        strategy = Strategyservice(data)
+        strategy.process_update_data(data,strategy_id)
+        
+        response = {
+            "status": "success",
+            "received_data": data
+        }
+        return jsonify(response), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/get_strategy_details/<int:strategy_id>', methods=['GET'])
 def get_strategy_details(strategy_id):
