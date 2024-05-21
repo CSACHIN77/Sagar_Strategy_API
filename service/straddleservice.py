@@ -8,7 +8,7 @@ class Strategyservice:
         self.data = data
         #self.strategyId = strategyId
     
-    def process_data(self, data,):
+    def process_insert_data(self, data,):
         strategy = Strategy(id = data['strategies'][0]['id'], name= data['strategies'][0]['name'],underlying= data['strategies'][0]['underlying'],strategy_type= data['strategies'][0]['strategy_type'],implied_futures_expiry= data['strategies'][0]['implied_futures_expiry'],entry_time= data['strategies'][0]['entry_time'],last_entry_time= data['strategies'][0]['last_entry_time'],exit_time= data['strategies'][0]['exit_time'],square_off= data['strategies'][0]['square_off'],overall_sl= data['strategies'][0]['overall_sl'],overall_target= data['strategies'][0]['overall_target'],trailing_options= data['strategies'][0]['trailing_options'],profit_reaches= data['strategies'][0]['profit_reaches'],lock_profit= data['strategies'][0]['lock_profit'],increase_in_profit= data['strategies'][0]['increase_in_profit'],trail_profit= data['strategies'][0]['trail_profit'])
         #.straddle_repo.insert_strategy_data(self.id,self.name,self.underlying,self.strategy_type,self.implied_futures_expiry,self.entry_time,self.last_entry_time
                                                 #,self.exit_time,self.square_off,self.overall_sl,self.overall_target,self.trailing_options,self.profit_reaches
@@ -71,7 +71,71 @@ class Strategyservice:
         # Pass data to repo
         repo = StraddleRepo()
         repo.insert_data(strategy,legs)
-        #repo.update_data(strategy,legs,strategyId)
+      
+    
+    def process_update_data(self, data,strategyId):
+        strategy = Strategy(id = data['strategies'][0]['id'], name= data['strategies'][0]['name'],underlying= data['strategies'][0]['underlying'],strategy_type= data['strategies'][0]['strategy_type'],implied_futures_expiry= data['strategies'][0]['implied_futures_expiry'],entry_time= data['strategies'][0]['entry_time'],last_entry_time= data['strategies'][0]['last_entry_time'],exit_time= data['strategies'][0]['exit_time'],square_off= data['strategies'][0]['square_off'],overall_sl= data['strategies'][0]['overall_sl'],overall_target= data['strategies'][0]['overall_target'],trailing_options= data['strategies'][0]['trailing_options'],profit_reaches= data['strategies'][0]['profit_reaches'],lock_profit= data['strategies'][0]['lock_profit'],increase_in_profit= data['strategies'][0]['increase_in_profit'],trail_profit= data['strategies'][0]['trail_profit'])
+        #.straddle_repo.insert_strategy_data(self.id,self.name,self.underlying,self.strategy_type,self.implied_futures_expiry,self.entry_time,self.last_entry_time
+                                                #,self.exit_time,self.square_off,self.overall_sl,self.overall_target,self.trailing_options,self.profit_reaches
+                                                #,self.lock_profit,self.increase_in_profit,self.trail_profit)
+        #print(strategy)
+        
+        legs = []
+        #print(data['strategies'][0]['legs'])
+
+        for leg_data in data['strategies'][0]['legs']:
+            leg = Leg(
+                id=leg_data['id'],
+                strategy_id=leg_data['strategy_id'],
+                leg_no=leg_data['leg_no'],
+                lots=leg_data['lots'],
+                position=leg_data['position'],
+                option_type=leg_data['option_type'],
+                expiry=leg_data['expiry'],
+                no_of_reentry=leg_data['no_of_reentry'],
+                strike_selection_criteria=leg_data['strike_selection_criteria'],
+                closest_premium=leg_data['closest_premium'],
+                strike_type=leg_data['strike_type'],
+                straddle_width_value=leg_data['straddle_width_value'],
+                straddle_width_sign=leg_data['straddle_width_sign'],
+                percent_of_atm_strike_value=leg_data['percent_of_atm_strike_value'],
+                percent_of_atm_strike_sign=leg_data['percent_of_atm_strike_sign'],
+                atm_straddle_premium=leg_data['atm_straddle_premium'],
+                strike_selection_criteria_stop_loss=leg_data['strike_selection_criteria_stop_loss'],
+                strike_selection_criteria_stop_loss_sign=leg_data['strike_selection_criteria_stop_loss_sign'],
+                strike_selection_criteria_trailing_options=leg_data['strike_selection_criteria_trailing_options'],
+                strike_selection_criteria_profit_reaches=leg_data['strike_selection_criteria_profit_reaches'],
+                strike_selection_criteria_lock_profit=leg_data['strike_selection_criteria_lock_profit'],
+                strike_selection_criteria_lock_profit_sign=leg_data['strike_selection_criteria_lock_profit_sign'],
+                strike_selection_criteria_increase_in_profit=leg_data['strike_selection_criteria_increase_in_profit'],
+                strike_selection_criteria_trail_profit=leg_data['strike_selection_criteria_trail_profit'],
+                strike_selection_criteria_trail_profit_sign=leg_data['strike_selection_criteria_trail_profit_sign'],
+                roll_strike=leg_data['roll_strike'],
+                roll_strike_strike_type=leg_data['roll_strike_strike_type'],
+                roll_strike_stop_loss=leg_data['roll_strike_stop_loss'],
+                roll_strike_stop_loss_sign=leg_data['roll_strike_stop_loss_sign'],
+                roll_strike_trailing_options=leg_data['roll_strike_trailing_options'],
+                roll_strike_profit_reaches=leg_data['roll_strike_profit_reaches'],
+                roll_strike_lock_profit=leg_data['roll_strike_lock_profit'],
+                roll_strike_lock_profit_sign=leg_data['roll_strike_lock_profit_sign'],
+                roll_strike_increase_in_profit=leg_data['roll_strike_increase_in_profit'],
+                roll_strike_trail_profit=leg_data['roll_strike_trail_profit'],
+                roll_strike_trail_profit_sign=leg_data['roll_strike_trail_profit_sign'],
+                simple_momentum_range_breakout=leg_data['simple_momentum_range_breakout'],
+                simple_momentum=leg_data['simple_momentum'],
+                simple_momentum_sign=leg_data['simple_momentum_sign'],
+                simple_momentum_direction=leg_data['simple_momentum_direction'],
+                range_breakout=leg_data['range_breakout']
+                )
+            #print(leg.position)
+            legs.append(leg)
+        #print(len(legs))
+            
+        # Do data validation
+        
+        # Pass data to repo
+        repo = StraddleRepo()
+        repo.update_data(strategy,legs,strategyId)
         
     def getStrategyName(self):
         repo = StraddleRepo()
