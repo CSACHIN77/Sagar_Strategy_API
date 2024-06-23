@@ -30,7 +30,7 @@ except ImportError as e:
 # Initialize Flask app
 app = Flask(__name__)
 
-@app.route('/get_strategy_name', methods=['GET'])
+@app.route('/strategies/name', methods=['GET'])
 def get_strategy_name():
     try:
         data=[]
@@ -40,7 +40,7 @@ def get_strategy_name():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/save_strategy', methods=['POST'])
+@app.route('/strategies', methods=['POST'])
 def save_strategy():
     try:
         data = request.get_json()
@@ -58,7 +58,7 @@ def save_strategy():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/update_strategy/<int:strategy_id>', methods=['POST'])
+@app.route('/strategies/<int:strategy_id>', methods=['PUT'])
 def update_strategy(strategy_id):
     try:
         data = request.get_json()
@@ -76,13 +76,24 @@ def update_strategy(strategy_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/get_strategy_details/<int:strategy_id>', methods=['GET'])
+#Return single strategy
+@app.route('/strategies/<int:strategy_id>', methods=['GET'])
 def get_strategy_details(strategy_id):
     #print("Data from db.json:", data) 
     data =[]
     strategy = Strategyservice(data)
-    print('1')
+    #print('1')
     strategy_details = strategy.getStrategyDetails(strategy_id)
+    
+    return jsonify(strategy_details), 200
+
+#Return all strategies
+@app.route('/strategies', methods=['GET'])
+def get_all_strategies():
+    data =[]
+    strategy = Strategyservice(data)
+    #print('1')
+    strategy_details = strategy.getAllStrategyDetails()
     
     return jsonify(strategy_details), 200
 
