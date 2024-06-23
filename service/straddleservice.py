@@ -144,10 +144,14 @@ class Strategyservice:
         
     def getStrategyDetails(self, strategyId):
         print(strategyId)
-        print('2')
         repo = StraddleRepo()
         strategy_details = repo.getStrategyDetails(strategyId)
         return strategy_details
+     
+    def getAllStrategyDetails(self):
+        repo = StraddleRepo()
+        strategy_name = repo.getAllStrategies()
+        return strategy_name
         
     
 class Strategy:
