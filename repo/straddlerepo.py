@@ -9,9 +9,9 @@ database="sagar_strategy"
 
 def convert_to_json(result,strategy_id):
     strategies = []
-    print('5')
+    #print('5')
     mycursor = mydb.cursor()
-    print(result)
+    #print(result)
     for row in result:
         strategy = {
             "id": row["id"],
@@ -36,7 +36,7 @@ def convert_to_json(result,strategy_id):
     
         
     # Fetch data for legs related to the current strategy
-        print('6')
+        #('6')
         leg_sql = """SELECT id,atm_straddle_premium,closest_premium,leg_no,lots,no_of_reentry,option_type,percent_of_atm_strike_sign,percent_of_atm_strike_value,position,range_breakout,roll_strike,roll_strike_increase_in_profit,roll_strike_lock_profit,roll_strike_lock_profit_sign,
                     roll_strike_profit_reaches,roll_strike_stop_loss,roll_strike_stop_loss_sign,roll_strike_strike_type,roll_strike_trail_profit,roll_strike_trail_profit_sign,roll_strike_trailing_options,
                     simple_momentum,simple_momentum_direction,simple_momentum_range_breakout,simple_momentum_sign,straddle_width_sign,straddle_width_value,strategy_id,strike_selection_criteria,
@@ -44,11 +44,11 @@ def convert_to_json(result,strategy_id):
                     strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,strike_selection_criteria_trailing_options,strike_type FROM leg WHERE strategy_id = %s"""  # Replace 'legs' and 'strategy_id' with your table and column names
         mycursor.execute(leg_sql, (strategy_id,))
         leg_rows = mycursor.fetchall()
-        print(leg_rows)
+        #print(leg_rows)
     # Iterate over leg rows and format data into the desired structure
         for leg_row in leg_rows:
-            print('9')
-            print(leg_row)
+            #print('9')
+            #print(leg_row)
             leg = {
                 "atm_straddle_premium": leg_row[1],
                 "closest_premium": leg_row[2],
@@ -91,7 +91,7 @@ def convert_to_json(result,strategy_id):
                 "strike_selection_criteria_trailing_options": leg_row[38],
                 "strike_type": leg_row[39]
                 }
-            print(leg)
+            #print(leg)
             strategy["legs"].append(leg)
                     #print(strategy)
     strategies.append(strategy)
@@ -101,13 +101,14 @@ def convert_to_json(result,strategy_id):
     return data
 
 
+
 class StraddleRepo:
     def __init__(self):
         pass
     
     def insert_data(self,strategy_data,legs_data):
        
-        print(strategy_data.id)
+        #print(strategy_data.id)
        
         mycursor = mydb.cursor()
         query = """
@@ -121,12 +122,12 @@ class StraddleRepo:
                                  ,strategy_data.exit_time,strategy_data.square_off,strategy_data.overall_sl,strategy_data.overall_target,strategy_data.trailing_options,strategy_data.profit_reaches
                                  ,strategy_data.lock_profit,strategy_data.increase_in_profit,strategy_data.trail_profit
         )
-        print(query) 
+        #print(query) 
         mycursor.execute(query, values)
         mydb.commit()
-        print("Data inserted successfully in strategy table.")
+        #print("Data inserted successfully in strategy table.")
         inserted_id = mycursor.lastrowid
-        print("Inserted ID:", inserted_id)
+        #print("Inserted ID:", inserted_id)
     
             #print(leg_value.strategy_id)
         query= """INSERT INTO leg (strategy_id,leg_no,lots,position,option_type,expiry,no_of_reentry,strike_selection_criteria,closest_premium,strike_type,straddle_width_value,straddle_width_sign,percent_of_atm_strike_value,percent_of_atm_strike_sign,atm_straddle_premium,strike_selection_criteria_stop_loss,strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trailing_options,strike_selection_criteria_profit_reaches,strike_selection_criteria_lock_profit,strike_selection_criteria_lock_profit_sign,strike_selection_criteria_increase_in_profit,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,roll_strike,roll_strike_strike_type,roll_strike_stop_loss,roll_strike_stop_loss_sign,roll_strike_trailing_options,roll_strike_profit_reaches,roll_strike_lock_profit,roll_strike_lock_profit_sign,roll_strike_increase_in_profit,roll_strike_trail_profit,roll_strike_trail_profit_sign,simple_momentum_range_breakout,simple_momentum,simple_momentum_sign,simple_momentum_direction,range_breakout) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"""
@@ -137,14 +138,14 @@ class StraddleRepo:
             try:
                 mycursor.execute(query, values)
                 mydb.commit()
-                print("Insertion successful!")
+                #print("Insertion successful!")
             except Exception as e:
                 print("Error:", e)
             
     
     def update_data(self,strategy_data,legs_data,strategyId):
        
-        print(strategy_data.id)
+        #print(strategy_data.id)
        
         mycursor = mydb.cursor()
         query = """
@@ -160,12 +161,12 @@ class StraddleRepo:
                                  ,strategy_data.exit_time,strategy_data.square_off,strategy_data.overall_sl,strategy_data.overall_target,strategy_data.trailing_options,strategy_data.profit_reaches
                                  ,strategy_data.lock_profit,strategy_data.increase_in_profit,strategy_data.trail_profit,strategyId
         )
-        print(query) 
+        #print(query) 
         mycursor.execute(query, values)
         mydb.commit()
-        print("Data inserted successfully in strategy table.")
+        #print("Data inserted successfully in strategy table.")
         inserted_id = mycursor.lastrowid
-        print("Inserted ID:", inserted_id)
+        #print("Inserted ID:", inserted_id)
             #print(leg_value.strategy_id)
         
         leg_query = """
@@ -211,7 +212,7 @@ class StraddleRepo:
                           leg_value.simple_momentum_direction, leg_value.range_breakout, strategyId, leg_id)
                 mycursor.execute(leg_query, leg_values)
                 mydb.commit()
-                print("Update successful for leg data with strategy ID:", strategyId, "and leg ID:", leg_id)
+                #print("Update successful for leg data with strategy ID:", strategyId, "and leg ID:", leg_id)
             else:
                 print("Leg with leg_no {} not found for strategy with ID {}".format(leg_value.leg_no, strategyId))
         
@@ -232,11 +233,11 @@ class StraddleRepo:
             }
             #print(strategy)
             strategy_names.append(strategy)
-        print(strategy_names)
+        #print(strategy_names)
         return strategy_names
 
     def getStrategyDetails(self, strategy_id):
-        print('3')
+        #print('3')
         mycursor = mydb.cursor(dictionary=True)
         query =  """
         SELECT *
@@ -245,13 +246,46 @@ class StraddleRepo:
         """
         mycursor.execute(query, (strategy_id,))
         result = mycursor.fetchall()
-        print('4')
+        #print('4')
         stategy_details = convert_to_json(result,strategy_id)
         #for row in result:
          #   strategy_details.append(row)
         return stategy_details
         
+    def getAllStrategies(self):
+        try:
+            mycursor = mydb.cursor(dictionary=True)
+            
+            # Step 1: Fetch all unique strategy IDs
+            mycursor.execute("SELECT DISTINCT id FROM strategy")
+            strategy_ids = [row['id'] for row in mycursor.fetchall()]
+            
+            # List to store all strategy details
+            all_strategies = []
+            
+            # Step 2: Iterate over each strategy_id and fetch details
+            for strategy_id in strategy_ids:
+                # Fetch strategy details
+                query = """
+                SELECT *
+                FROM strategy
+                WHERE strategy.id = %s
+                """
+                mycursor.execute(query, (strategy_id,))
+                result = mycursor.fetchall()
+                
+                # Convert to JSON format
+                strategy_details = convert_to_json(result, strategy_id)
+                # Append strategy details to all_strategies list
+                all_strategies.append(strategy_details)
+            
+            # Return all strategies as JSON data
+            return {"strategies": all_strategies}
         
+        except Exception as e:
+            print(f"Error retrieving strategy details: {e}")
+            return {"error": str(e)}
+
             
     
     
