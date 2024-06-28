@@ -10,8 +10,7 @@ sys.path.append(parent_directory)#os.chdir('D:/Rupendra/Work/Sagar/Sagar_Strateg
 #print(f"Changed directory to: {os.getcwd()}")
 from repo.straddlerepo import StraddleRepo
 from flask import Flask, request, jsonify
-
-
+from flask_cors import CORS
 # Change directory
 #os.chdir('C:/Ajay')
 #print(f"Changed directory to: {os.getcwd()}")
@@ -29,6 +28,7 @@ except ImportError as e:
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/strategies/name', methods=['GET'])
 def get_strategy_name():
