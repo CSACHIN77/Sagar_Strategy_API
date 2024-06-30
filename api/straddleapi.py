@@ -54,7 +54,7 @@ def save_strategy():
             "status": "success",
             "received_data": data
         }
-        return jsonify(response), 200
+        return jsonify(data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -68,11 +68,8 @@ def update_strategy(strategy_id):
         strategy = Strategyservice(data)
         strategy.process_update_data(data,strategy_id)
         
-        response = {
-            "status": "success",
-            "received_data": data
-        }
-        return jsonify(response), 200
+        
+        return jsonify(data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
