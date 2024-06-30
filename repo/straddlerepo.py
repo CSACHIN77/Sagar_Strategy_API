@@ -1,4 +1,5 @@
 import mysql.connector
+import json
 
 mydb = mysql.connector.connect(
 host="localhost",
@@ -254,6 +255,7 @@ class StraddleRepo:
         stategy_details = convert_to_json(result,strategy_id)
         #for row in result:
          #   strategy_details.append(row)
+         
         transformed_data = {"strategies": stategy_details}
         # Outputting the transformed data
         #print(json.dumps(transformed_data, indent=2))
@@ -285,7 +287,8 @@ class StraddleRepo:
                 strategy_details = convert_to_json(result, strategy_id)
                 # Append strategy details to all_strategies list
                 #return strategy_details
-                all_strategies.append(strategy_details)
+                
+                all_strategies.extend(strategy_details)
                 #all_strategies.append(result)
             
             # Return all strategies as JSON data
