@@ -44,17 +44,18 @@ def get_strategy_name():
 def save_strategy():
     try:
         data = request.get_json()
-        print("Received JSON data:", data)
         
+        transformed_data = {"strategies": data}
         # Example processing (you might want to pass this data to Strategyservice)
-        strategy = Strategyservice(data)
-        strategy.process_insert_data(data)
+        print("Received JSON data:", transformed_data)
+        strategy = Strategyservice(transformed_data)
+        strategy.process_insert_data(transformed_data)
         
         response = {
             "status": "success",
-            "received_data": data
+            "received_data": transformed_data
         }
-        return jsonify(data), 200
+        return jsonify(transformed_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -63,13 +64,18 @@ def update_strategy(strategy_id):
     try:
         data = request.get_json()
         print("Received JSON data:", data)
-        
+        transformed_data = {"strategies": data}
         # Example processing (you might want to pass this data to Strategyservice)
-        strategy = Strategyservice(data)
-        strategy.process_update_data(data,strategy_id)
+        print("Received JSON data:", transformed_data)
+        # Example processing (you might want to pass this data to Strategyservice)
+        strategy = Strategyservice(transformed_data)
+        strategy.process_update_data(transformed_data,strategy_id)
         
-        
-        return jsonify(data), 200
+        response = {
+            "status": "success",
+            "received_data": data
+        }
+        return jsonify(transformed_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
