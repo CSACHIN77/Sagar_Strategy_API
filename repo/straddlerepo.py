@@ -100,7 +100,7 @@ def convert_to_json(result,strategy_id):
     #data = {"strategies": strategy}
     # = strategies
             
-    return strategies
+    return strategy
 
 
 
@@ -244,6 +244,7 @@ class StraddleRepo:
     def getStrategyDetails(self, strategy_id):
         #print('3')
         mycursor = mydb.cursor(dictionary=True)
+        stategy_details = ""
         query =  """
         SELECT *
         FROM strategy
