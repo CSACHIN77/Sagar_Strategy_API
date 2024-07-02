@@ -8,7 +8,7 @@ password="root",
 database="sagar_strategy"
 )
 
-def convert_to_json(result,strategy_id):
+def convert_to_json(result,strategy_id,value):
     strategies = []
     #print('5')
     mycursor = mydb.cursor()
@@ -99,8 +99,10 @@ def convert_to_json(result,strategy_id):
             #print(strategy)
     #data = {"strategies": strategy}
     # = strategies
-            
-    return strategy
+    if value==1:       
+        return strategy
+    else:
+        return strategies
 
 
 
@@ -239,10 +241,11 @@ class StraddleRepo:
         transformed_data = {"strategies": strategy_names}
         # Outputting the transformed data
         #print(json.dumps(transformed_data, indent=2))
-        return transformed_data
+        return strategy_names
 
     def getStrategyDetails(self, strategy_id):
         #print('3')
+        value=1
         mycursor = mydb.cursor(dictionary=True)
         stategy_details = ""
         query =  """
@@ -253,19 +256,17 @@ class StraddleRepo:
         mycursor.execute(query, (strategy_id,))
         result = mycursor.fetchall()
         #print('4')
-        stategy_details = convert_to_json(result,strategy_id)
+        stategy_details = convert_to_json(result,strategy_id,value)
         #for row in result:
          #   strategy_details.append(row)
          
-        transformed_data = {"strategies": stategy_details}
-        # Outputting the transformed data
-        #print(json.dumps(transformed_data, indent=2))
-        return transformed_data
+    
+        return stategy_details
         
     def getAllStrategies(self):
         try:
             mycursor = mydb.cursor(dictionary=True)
-            
+            value=2
             # Step 1: Fetch all unique strategy IDs
             mycursor.execute("SELECT DISTINCT id FROM strategy")
             strategy_ids = [row['id'] for row in mycursor.fetchall()]
@@ -285,7 +286,7 @@ class StraddleRepo:
                 result = mycursor.fetchall()
                 
                 # Convert to JSON format
-                strategy_details = convert_to_json(result, strategy_id)
+                strategy_details = convert_to_json(result, strategy_id,value)
                 # Append strategy details to all_strategies list
                 #return strategy_details
                 
