@@ -42,7 +42,7 @@ def convert_to_json(result,strategy_id,value):
                     roll_strike_profit_reaches,roll_strike_stop_loss,roll_strike_stop_loss_sign,roll_strike_strike_type,roll_strike_trail_profit,roll_strike_trail_profit_sign,roll_strike_trailing_options,
                     simple_momentum,simple_momentum_direction,simple_momentum_range_breakout,simple_momentum_sign,straddle_width_sign,straddle_width_value,strategy_id,strike_selection_criteria,
                     strike_selection_criteria_increase_in_profit,strike_selection_criteria_lock_profit,strike_selection_criteria_lock_profit_sign,strike_selection_criteria_profit_reaches,strike_selection_criteria_stop_loss,
-                    strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,strike_selection_criteria_trailing_options,strike_type FROM leg WHERE strategy_id = %s"""  # Replace 'legs' and 'strategy_id' with your table and column names
+                    strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,strike_selection_criteria_trailing_options,strike_type,expiry FROM leg WHERE strategy_id = %s"""  # Replace 'legs' and 'strategy_id' with your table and column names
         mycursor.execute(leg_sql, (strategy_id,))
         leg_rows = mycursor.fetchall()
         #print(leg_rows)
@@ -90,7 +90,8 @@ def convert_to_json(result,strategy_id,value):
                 "strike_selection_criteria_trail_profit": leg_row[36],
                 "strike_selection_criteria_trail_profit_sign": leg_row[37],
                 "strike_selection_criteria_trailing_options": leg_row[38],
-                "strike_type": leg_row[39]
+                "strike_type": leg_row[39],
+                "expiry": leg_row[40]
                 }
             #print(leg)
             strategy["legs"].append(leg)
