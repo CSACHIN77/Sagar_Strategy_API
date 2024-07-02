@@ -75,7 +75,7 @@ def update_strategy(strategy_id):
             "status": "success",
             "received_data": data
         }
-        return jsonify(transformed_data), 200
+        return jsonify(data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
