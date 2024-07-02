@@ -55,7 +55,7 @@ def save_strategy():
             "status": "success",
             "received_data": transformed_data
         }
-        return jsonify(transformed_data), 200
+        return jsonify(data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
