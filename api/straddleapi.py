@@ -36,6 +36,7 @@ def get_strategy_name():
         data=[]
         strategy = Strategyservice(data)
         strategy_name = strategy.getStrategyName()
+        print(strategy_name)
         return jsonify(strategy_name), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
