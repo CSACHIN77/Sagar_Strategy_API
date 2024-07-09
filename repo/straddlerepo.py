@@ -147,7 +147,72 @@ class StraddleRepo:
             except Exception as e:
                 print("Error:", e)
             
+    def update_data(self, strategy_data, legs_data, strategyId):
+        mycursor = mydb.cursor()
     
+        # Delete existing leg data for the strategyId
+        delete_leg_query = "DELETE FROM leg WHERE strategy_id = %s"
+        delete_leg_values = (strategyId,)
+        mycursor.execute(delete_leg_query, delete_leg_values)
+        mydb.commit()
+    
+        # Insert new leg data
+        for leg_value in legs_data:
+            leg_query = """
+                INSERT INTO leg (strategy_id, leg_no, lots, position, option_type, expiry, no_of_reentry, strike_selection_criteria, 
+                closest_premium, strike_type, straddle_width_value, straddle_width_sign, percent_of_atm_strike_value, 
+                percent_of_atm_strike_sign, atm_straddle_premium, strike_selection_criteria_stop_loss, 
+                strike_selection_criteria_stop_loss_sign, strike_selection_criteria_trailing_options, 
+                strike_selection_criteria_profit_reaches, strike_selection_criteria_lock_profit, 
+                strike_selection_criteria_lock_profit_sign, strike_selection_criteria_increase_in_profit, 
+                strike_selection_criteria_trail_profit, strike_selection_criteria_trail_profit_sign, roll_strike, 
+                roll_strike_strike_type, roll_strike_stop_loss, roll_strike_stop_loss_sign, roll_strike_trailing_options, 
+                roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign, roll_strike_increase_in_profit, 
+                roll_strike_trail_profit, roll_strike_trail_profit_sign, simple_momentum_range_breakout, simple_momentum, 
+                simple_momentum_sign, simple_momentum_direction, range_breakout)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+            leg_values = (strategyId, leg_value.leg_no, leg_value.lots, leg_value.position, leg_value.option_type, leg_value.expiry,
+                          leg_value.no_of_reentry, leg_value.strike_selection_criteria, leg_value.closest_premium, leg_value.strike_type,
+                          leg_value.straddle_width_value, leg_value.straddle_width_sign, leg_value.percent_of_atm_strike_value,
+                          leg_value.percent_of_atm_strike_sign, leg_value.atm_straddle_premium, leg_value.strike_selection_criteria_stop_loss,
+                          leg_value.strike_selection_criteria_stop_loss_sign, leg_value.strike_selection_criteria_trailing_options,
+                          leg_value.strike_selection_criteria_profit_reaches, leg_value.strike_selection_criteria_lock_profit,
+                          leg_value.strike_selection_criteria_lock_profit_sign, leg_value.strike_selection_criteria_increase_in_profit,
+                          leg_value.strike_selection_criteria_trail_profit, leg_value.strike_selection_criteria_trail_profit_sign,
+                          leg_value.roll_strike, leg_value.roll_strike_strike_type, leg_value.roll_strike_stop_loss,
+                          leg_value.roll_strike_stop_loss_sign, leg_value.roll_strike_trailing_options, leg_value.roll_strike_profit_reaches,
+                          leg_value.roll_strike_lock_profit, leg_value.roll_strike_lock_profit_sign, leg_value.roll_strike_increase_in_profit,
+                          leg_value.roll_strike_trail_profit, leg_value.roll_strike_trail_profit_sign, leg_value.simple_momentum_range_breakout,
+                          leg_value.simple_momentum, leg_value.simple_momentum_sign, leg_value.simple_momentum_direction, leg_value.range_breakout)
+    
+            mycursor.execute(leg_query, leg_values)
+            mydb.commit()
+    
+        # Update strategy table (assuming it remains unchanged)
+        update_strategy_query = """
+            UPDATE strategy
+            SET
+                name = %s, underlying = %s, strategy_type = %s, implied_futures_expiry = %s, entry_time = %s,
+                last_entry_time = %s, exit_time = %s, square_off = %s, overall_sl = %s, overall_target = %s,
+                trailing_options = %s, profit_reaches = %s, lock_profit = %s, increase_in_profit = %s, trail_profit = %s
+            WHERE
+                id = %s
+            """
+        strategy_values = (strategy_data.name, strategy_data.underlying, strategy_data.strategy_type,
+                           strategy_data.implied_futures_expiry, strategy_data.entry_time, strategy_data.last_entry_time,
+                           strategy_data.exit_time, strategy_data.square_off, strategy_data.overall_sl,
+                           strategy_data.overall_target, strategy_data.trailing_options, strategy_data.profit_reaches,
+                           strategy_data.lock_profit, strategy_data.increase_in_profit, strategy_data.trail_profit, strategyId)
+        
+        mycursor.execute(update_strategy_query, strategy_values)
+        mydb.commit()
+    
+        # Optionally print or log success message
+        print("Data updated successfully for strategy ID:", strategyId)
+        
+    '''
     def update_data(self,strategy_data,legs_data,strategyId):
        
         #print(strategy_data.id)
@@ -220,7 +285,7 @@ class StraddleRepo:
                 #print("Update successful for leg data with strategy ID:", strategyId, "and leg ID:", leg_id)
             else:
                 print("Leg with leg_no {} not found for strategy with ID {}".format(leg_value.leg_no, strategyId))
-        
+    '''    
                 
     def getStrategyName(self):
         #print("1")
