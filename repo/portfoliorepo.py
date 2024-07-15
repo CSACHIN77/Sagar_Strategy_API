@@ -4,7 +4,7 @@ mydb = mysql.connector.connect(
 host="localhost",
 user="root",
 password="root",
-database="sagar_portfolio"
+database="sagar_strategy"
 )
 
 def convert_to_json(result,strategy_id,value):
