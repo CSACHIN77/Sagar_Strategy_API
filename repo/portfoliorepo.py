@@ -14,8 +14,8 @@ def convert_to_json(result,strategy_id,value):
     #print(result)
     for row in result:
         strategy = {
-            "Id": row["Id"],
-            "Name": row["Name"],
+            "id": row["id"],
+            "name": row["name"],
              "strategies": []
             
             }
@@ -23,7 +23,7 @@ def convert_to_json(result,strategy_id,value):
         
     # Fetch data for legs related to the current strategy
         #('6')
-        leg_sql = """SELECT Id,portfolio_Id, strategy_id, symbol, quantity_multiplier,monday, tuesday, wednesday, thrusday, friday FROM portfoliostrategies WHERE portfolio_Id = %s"""  # Replace 'legs' and 'strategy_id' with your table and column names
+        leg_sql = """SELECT id,portfolio_Id, strategy_id, symbol, quantity_multiplier,monday, tuesday, wednesday, thrusday, friday FROM portfoliostrategies WHERE portfolio_Id = %s"""  # Replace 'legs' and 'strategy_id' with your table and column names
         mycursor.execute(leg_sql, (strategy_id,))
         leg_rows = mycursor.fetchall()
         #print(leg_rows)
@@ -34,7 +34,7 @@ def convert_to_json(result,strategy_id,value):
             strategies = {
                 "portfolio_Id": leg_row[1],
                 "strategy_id": leg_row[2],
-				"Id": leg_row[0],
+				"id": leg_row[0],
                 "symbol": leg_row[3],
                 "quantity_multiplier": leg_row[4],
                 "monday": bool(leg_row[5]),
@@ -73,7 +73,7 @@ class PortfolioRepo:
         mycursor = mydb.cursor()
         query = """
         INSERT INTO portfolio (
-                Name) VALUES (%s)
+                name) VALUES (%s)
         """
         values = (name_value)
         print(query) 
@@ -137,7 +137,7 @@ class PortfolioRepo:
             mycursor.close()
     
             # Optionally, update portfolio name (as per your original code)
-            update_portfolio_query = "UPDATE portfolio SET Name = %s WHERE Id = %s"
+            update_portfolio_query = "UPDATE portfolio SET name = %s WHERE id = %s"
             update_portfolio_values = (strategy_data.name, strategyId)
             mycursor = mydb.cursor()
             mycursor.execute(update_portfolio_query, update_portfolio_values)
@@ -153,8 +153,8 @@ class PortfolioRepo:
             mycursor = mydb.cursor(dictionary=True)
             value=2
             # Step 1: Fetch all unique strategy IDs
-            mycursor.execute("SELECT DISTINCT Id FROM portfolio")
-            strategy_ids = [row['Id'] for row in mycursor.fetchall()]
+            mycursor.execute("SELECT DISTINCT id FROM portfolio")
+            strategy_ids = [row['id'] for row in mycursor.fetchall()]
             
             # List to store all strategy details
             all_portfolios = []
@@ -165,7 +165,7 @@ class PortfolioRepo:
                 query = """
                 SELECT *
                 FROM portfolio
-                WHERE Id = %s
+                WHERE id = %s
                 """
                 mycursor.execute(query, (strategy_id,))
                 result = mycursor.fetchall()
@@ -196,7 +196,7 @@ class PortfolioRepo:
         query =  """
         SELECT *
         FROM portfolio
-        WHERE Id = %s
+        WHERE id = %s
         """
         mycursor.execute(query, (strategy_id,))
         result = mycursor.fetchall()
