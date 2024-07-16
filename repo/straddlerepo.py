@@ -363,7 +363,7 @@ class StraddleRepo:
             transformed_data = {"strategies": all_strategies}
             # Outputting the transformed data
             #print(json.dumps(transformed_data, indent=2))
-            return transformed_data
+            return all_strategies
         
         except Exception as e:
             print(f"Error retrieving strategy details: {e}")
