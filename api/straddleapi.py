@@ -125,7 +125,7 @@ def get_all_strategies():
 def save_portfolios():
     try:
         data = request.get_json()
-        print("Received JSON data:", data)
+        #print("Received JSON data:", data)
         
         strategy = Portfolioservice(data)
         strategy.process_insert_data(data)
