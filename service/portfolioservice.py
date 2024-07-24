@@ -130,14 +130,16 @@ class Portfolioservice:
         for strategy_data in data['strategies']:
             # Create a Leg object for each strategy
             strategy = Strategy(
-                strategy_id=strategy_data['strategy_id'],
-                symbol=strategy_data['symbol'],
-                quantity_multiplier=strategy_data['quantity_multiplier'],
-                monday=strategy_data['monday'],
-                tuesday=strategy_data['tuesday'],
-                wednesday=strategy_data['wednesday'],
-                thrusday=strategy_data['thrusday'],
-                friday=strategy_data['friday']
+                id=strategy_data.get('id'),
+                portfolio_id=portfolio.id,
+                strategy_id=strategy_data.get('strategy_id',0),
+                symbol=strategy_data.get('symbol',''),
+                quantity_multiplier=strategy_data.get('quantity_multiplier',0),
+                monday=strategy_data.get('monday',False),
+                tuesday=strategy_data.get('tuesday',False),
+                wednesday=strategy_data.get('wednesday',False),
+                thrusday=strategy_data.get('thrusday',False),
+                friday=strategy_data.get('friday',False)
                 # Add other attributes as per your Leg model
             )
             # Append the leg to the list of legs
@@ -194,7 +196,7 @@ class Strategy:
         
     def _repr_(self):
         #print(self.id)
-        return f"Strategy(strategy_id={self.strategy_id},symbol={self.symbol},quantity_multiplier={self.quantity_multiplier},monday={self.monday},tuesday={self.tuesday},wednesday={self.wednesday},thrusday={self.thrusday},friday={self.friday})"
+        return f"Strategy(id={self.id},portfolio_id={self.portfolio_id},strategy_id={self.strategy_id},symbol={self.symbol},quantity_multiplier={self.quantity_multiplier},monday={self.monday},tuesday={self.tuesday},wednesday={self.wednesday},thrusday={self.thrusday},friday={self.friday})"
     
     
 class Variables:
