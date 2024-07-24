@@ -47,6 +47,7 @@ CORS(app)
 def get_strategy_name():
     try:
         data=[]
+        strategy_name = []
         strategy = Strategyservice(data)
         strategy_name = strategy.getStrategyName()
         print(strategy_name)
@@ -58,6 +59,7 @@ def get_strategy_name():
 @app.route('/strategies', methods=['POST'])
 def save_strategy():
     try:
+        data = []
         data = request.get_json()
         
         transformed_data = {"strategies": data}
@@ -78,6 +80,7 @@ def save_strategy():
 @app.route('/strategies/<int:strategy_id>', methods=['PUT'])
 def update_strategy(strategy_id):
     try:
+        data = []
         data = request.get_json()
         print("Received JSON data:", data)
         transformed_data = {"strategies": data}
@@ -100,6 +103,7 @@ def update_strategy(strategy_id):
 def get_strategy_details(strategy_id):
     #print("Data from db.json:", data) 
     data =[]
+    strategy_details = []
     strategy = Strategyservice(data)
     #print('1')
     strategy_details = strategy.getStrategyDetails(strategy_id)
@@ -110,6 +114,7 @@ def get_strategy_details(strategy_id):
 @app.route('/strategies', methods=['GET'])
 def get_all_strategies():
     data =[]
+    strategy_details =[]
     strategy = Strategyservice(data)
     #print('1')
     strategy_details = strategy.getAllStrategyDetails()
@@ -124,6 +129,7 @@ def get_all_strategies():
 @app.route('/portfolios', methods=['POST'])
 def save_portfolios():
     try:
+        data =[]
         data = request.get_json()
         #print("Received JSON data:", data)
         
@@ -142,6 +148,7 @@ def save_portfolios():
 @app.route('/portfolios/<int:strategyId>', methods=['PUT'])
 def update_portfolio(strategyId):
     try:
+        data = []
         data = request.get_json()
         print("Received JSON data:", data)
         #print(strategyId)
@@ -161,6 +168,7 @@ def update_portfolio(strategyId):
 @app.route('/portfolios', methods=['GET'])
 def get_all_portfolios():
     data =[]
+    strategy_details = []
     strategy = Portfolioservice(data)
     #print('1')
     strategy_details = strategy.getAllPortfolioDetails()
@@ -172,6 +180,7 @@ def get_all_portfolios():
 def get_portfolio_details(strategy_id):
     #print("Data from db.json:", data) 
     data =[]
+    strategy_details = []
     strategy = Portfolioservice(data)
     #print('1')
     strategy_details = strategy.getPortfolioDetails(strategy_id)
@@ -180,6 +189,6 @@ def get_portfolio_details(strategy_id):
 
 try:
     if __name__ == '__main__':
-        app.run(debug=True,use_reloader=False)
+        app.run()
 except SystemExit as e:
     print("SystemExit Exception:", e)
