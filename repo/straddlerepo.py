@@ -366,7 +366,7 @@ class StraddleRepo:
             return all_strategies
         
         except Exception as e:
-            print(f"Error retrieving strategy details: {e}")
+            print(f"Rupendra 2 Error retrieving strategy details: {e}")
             return {"error": str(e)}
 
             

@@ -10,14 +10,14 @@ database="sagar_strategy"
 def convert_to_json(result,strategy_id,value):
     portfolios = []
     #print('5')
+    print(f'Result {result}')
     mycursor = mydb.cursor()
     #print(result)
     for row in result:
         strategy = {
-            "id": row["id"],
+            "id":strategy_id,
             "name": row["name"],
-             "strategies": []
-            
+             "strategies": []            
             }
     
         
@@ -261,9 +261,22 @@ class PortfolioRepo:
             mydb.rollback()  # Rollback in case of error
     
     def getAllPortfolio(self):
+        
+        mydb = None
+        mycursor = None
+        
+            
         try:
+            mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="root",
+            database="sagar_strategy"
+            )
+            
             mycursor = mydb.cursor(dictionary=True)
-            value=2
+            value = 2
+
             # Step 1: Fetch all unique strategy IDs
             mycursor.execute("SELECT DISTINCT id FROM portfolio")
             strategy_ids = [row['id'] for row in mycursor.fetchall()]
@@ -279,28 +292,35 @@ class PortfolioRepo:
                 FROM portfolio
                 WHERE id = %s
                 """
+                
                 mycursor.execute(query, (strategy_id,))
                 result = mycursor.fetchall()
-                
-                # Convert to JSON format
-                strategy_details = convert_to_json(result, strategy_id,value)
-                # Append strategy details to all_strategies list
-                #return strategy_details
-                
-                all_portfolios.extend(strategy_details)
-                #all_strategies.append(result)
+
+                #if result:
+                    # Convert to JSON format
+                    #strategy_details = convert_to_json(result, strategy_id, value)
+                    # Append strategy details to all_portfolios list
+                    #all_portfolios.extend(strategy_details)
             
-            # Return all strategies as JSON data
-            transformed_data = {"portfolio": all_portfolios}
+            # Return all portfolios as JSON data
+                    #transformed_data = {"portfolio": all_portfolios}
+            
             # Outputting the transformed data
             #print(json.dumps(transformed_data, indent=2))
-            return all_portfolios
+            return result
         
-        except Exception as e:
-            print(f"Error retrieving strategy details: {e}")
-            return {"error": str(e)}
+        except mysql.connector.Error as err:
+            print(f"Error retrieving strategy details: {err}")
+            return {"error": str(err)}
+        finally:
+            # Close cursor and connection
+            if mycursor:
+                mycursor.close()
+            if mydb:
+                mydb.close()
 
     def getPortfolioDetails(self, strategy_id):
+        print(f'Rupendra getPortfolioDetails')
         #print('3')
         value=1
         mycursor = mydb.cursor(dictionary=True)
@@ -315,9 +335,9 @@ class PortfolioRepo:
         #print('4')
         stategy_details = convert_to_json(result,strategy_id,value)
         #for row in result:
-         #   strategy_details.append(row)
-         
-    
+            #   strategy_details.append(row)
+            
+
         return stategy_details
 
 '''            
