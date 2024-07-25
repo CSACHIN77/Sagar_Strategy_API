@@ -38,10 +38,10 @@ class Portfolioservice:
             strategies.append(strategy)
             
             # Extract strategy variables
-            strategy_variables_entry = strategy_data['strategyvariables']
+        strategy_variables_entry = strategy_data['strategyvariables']
             #(strategy_variables_entries)
-            print(5)
-            variables = Variables(
+        print(5)
+        variables = Variables(
                     id=strategy_variables_entry.get('id'),
                     portfolio_strategy_id=strategy.id,
                     underlying=strategy_variables_entry.get('underlying', ''),
@@ -62,13 +62,13 @@ class Portfolioservice:
                     # Add other attributes as per your Variables model
                     
                 )
-            print(8)
-            strategy_variables.append(variables)
+        print(8)
+        strategy_variables.append(variables)
                 
                 # Extract legs
-            strategy_legs = strategy_variables_entry.get('legs', [])
-            for leg_entry in strategy_legs:
-                leg = Leg(
+        strategy_legs = strategy_variables_entry.get('legs', [])
+        for leg_entry in strategy_legs:
+            leg = Leg(
                         id=leg_entry['id'],
                         portfolio_strategy_variables_id=variables.id,
                         lots=leg_entry['lots'],
@@ -111,7 +111,7 @@ class Portfolioservice:
                         range_breakout=leg_entry.get('range_breakout')
                         # Add other attributes as per your Leg model
                     )
-                legs.append(leg)
+            legs.append(leg)
         
         # Assuming PortfolioRepo is responsible for data insertion
         repo = PortfolioRepo()
