@@ -186,10 +186,356 @@ def insert_strategy(strategies,strategyvariables,legs,portfolio_id):
             print("Error inserting into portfoliostrategies table:", e)
             return
 
+
+
+def update_Strategy(strategies,portId):
+    mycursor = mydb.cursor()
+    json_id = []
+    query = "SELECT strategy_id from portfoliostrategies WHERE portfolio_id=%s"
+    mycursor.execute(query, (portId,))
+    result = mycursor.fetchall()
+    table_ids = [row[0] for row in result]
+    #print(table_ids)
+    #print(result)
+    for strategy in strategies:
+        json_id.append(strategy.strategy_id)
+    #print(json_id)
+    integer_list = [int(item) for item in json_id]
+    #print(integer_list[0])
+    
+    if integer_list[0] not in table_ids:
+        print(integer_list[0])
+        query = "DELETE from portfoliostrategies where portfolio_id=%s and strategy_id=%s"
+        mycursor.execute(query, (portId,integer_list[0],))
+        print("Data updated successfully in portfolio table")
+    
+    
+    
+
+    
+
 class PortfolioRepo:
     def __init__(self):
         pass
-
+    
+    def update_portfolio(self,portfolio,portId):
+        mycursor = mydb.cursor()
+        
+        check_query = "SELECT COUNT(*) FROM portfolio WHERE id = %s"
+        mycursor.execute(check_query, (portId,))
+        result = mycursor.fetchone()
+        # print(result[0])
+        
+        query = "UPDATE portfolio SET name = %s WHERE id = %s"
+        try:
+            name_value = (portfolio.name, portId)
+            mycursor.execute(query, name_value)
+            mydb.commit()
+            print("Data updated successfully in portfolio table.")
+        except Exception as e:
+            print("Error updating portfolio table:", e)
+            return
+    
+    def portfolio_strategy_insert_update(self,strategy_data,portId):
+        mycursor = mydb.cursor()
+        #print(strategy_data)
+        query = "SELECT strategy_id,id from portfoliostrategies where portfolio_id=%s"
+        mycursor.execute(query, (portId,))
+        result = mycursor.fetchall()
+        #print(result)
+        ids_in_data = {item[0] for item in result}
+        print(ids_in_data)
+        main_id = strategy_data['strategy_id']
+        json_id = int(main_id)
+        print("json id : " ,json_id)
+        if json_id in ids_in_data:
+            print("update")
+            query = """
+            UPDATE portfoliostrategies SET symbol = %s, quantity_multiplier = %s, monday = %s, tuesday = %s, wednesday = %s, thrusday = %s, friday = %s
+            WHERE portfolio_id = %s AND strategy_id = %s
+            """
+            values = (
+                strategy_data.get('symbol', None),
+                strategy_data.get('quantity_multiplier', None),
+                strategy_data.get('monday', None),
+                strategy_data.get('tuesday', None),
+                strategy_data.get('wednesday', None),
+                strategy_data.get('thrusday', None),  # Corrected spelling
+                strategy_data.get('friday', None),
+                portId,
+                json_id
+            )
+            mycursor.execute(query, values)
+            mydb.commit()
+            print("Update successful in portfoliostrategies table!")
+            #return last_id
+            query = "SELECT id from portfoliostrategies WHERE portfolio_id = %s AND strategy_id = %s"
+            mycursor.execute(query, (portId,json_id))
+            result = mycursor.fetchall()
+            last_id = result[0][0]
+            print(last_id)
+        else:
+            print("insert")
+            query = """
+                INSERT INTO portfoliostrategies (portfolio_id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            values = (
+                portId,
+                json_id,
+                strategy_data.get('symbol', None),
+                strategy_data.get('quantity_multiplier', None),
+                strategy_data.get('monday', None),
+                strategy_data.get('tuesday', None),
+                strategy_data.get('wednesday', None),
+                strategy_data.get('thursday', None),  # Corrected spelling
+                strategy_data.get('friday', None)
+            )
+            mycursor.execute(query, values)
+            mydb.commit()
+            print("Insertion successful into portfoliostrategies table!")
+            
+            last_id = mycursor.lastrowid  # Get the inserted strategy_id
+            print(last_id)
+        return last_id
+       
+    def portfolio_strategy_variable_insert_update(self,variable, strategy_id):
+        mycursor = mydb.cursor()
+        query = "SELECT id from portfoliostrategyvariables where portfolio_strategy_id = %s"
+        mycursor.execute(query, (strategy_id,))
+        result = mycursor.fetchall()
+        mydb.commit()
+        #print(result)
+        
+        #print(result)
+        if result:
+            last_id = result[0][0]  # Get the first element of the first tuple
+            print(last_id)
+            query = """
+            UPDATE portfoliostrategyvariables SET underlying = %s, strategy_type = %s, quantity_multiplier = %s, implied_futures_expiry = %s, entry_time = %s, last_entry_time = %s, exit_time = %s,
+            square_off = %s, overall_sl = %s, overall_target = %s, trailing_options = %s, profit_reaches = %s, increase_in_profit = %s, trail_profit = %s
+            WHERE  portfolio_strategy_id = %s and id = %s
+            """
+            values = (
+               variable.get('underlying'),
+               variable.get('strategy_type'),
+               variable.get('quantity_multiplier'),
+               variable.get('implied_futures_expiry'),
+               variable.get('entry_time'),
+               variable.get('last_entry_time'),
+               variable.get('exit_time'),
+               variable.get('square_off'),
+               variable.get('overall_sl'),
+               variable.get('overall_target'),
+               variable.get('trailing_options'),
+               variable.get('profit_reaches'),
+               variable.get('increase_in_profit'),
+               variable.get('trail_profit'),
+               strategy_id,
+               last_id
+            )
+            mycursor.execute(query, values)
+            mydb.commit()
+            print("Update successful in portfoliostrategyvariables table!")
+        else:
+            last_id = None
+            query = """
+                    INSERT INTO portfoliostrategyvariables (
+                        portfolio_strategy_id, underlying, strategy_type, quantity_multiplier, implied_futures_expiry,
+                        entry_time, last_entry_time, exit_time, square_off, overall_sl, overall_target, trailing_options,
+                        profit_reaches, lock_profit, increase_in_profit, trail_profit
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+            values = (
+                    strategy_id,  # Use the strategy_id as portfolio_strategy_id
+                    variable.get('underlying'),
+                    variable.get('strategy_type'),
+                    variable.get('quantity_multiplier'),
+                    variable.get('implied_futures_expiry'),
+                    variable.get('entry_time'),
+                    variable.get('last_entry_time'),
+                    variable.get('exit_time'),
+                    variable.get('square_off'),
+                    variable.get('overall_sl'),
+                    variable.get('overall_target'),
+                    variable.get('trailing_options'),
+                    variable.get('profit_reaches'),
+                    variable.get('lock_profit'),
+                    variable.get('increase_in_profit'),
+                    variable.get('trail_profit'),
+                )
+            
+            mycursor.execute(query, values)
+            mydb.commit()
+            print("Insertion successful into portfoliostrategyvariables table!")
+            last_id = mycursor.lastrowid  # Get the inserted portfolio_strategy_id
+            print("Portfolio Strategy Variable ID:", last_id)
+        return last_id
+        
+    
+    def portfolio_strategy_variable_leg_insert_update(self,leg_values,portfolio_strategy_variable_id):
+        mycursor = mydb.cursor()
+        
+        query = "SELECT id from portfoliostrategyvariableslegs where portfolio_strategy_variables_id = %s"
+        mycursor.execute(query, (portfolio_strategy_variable_id,))
+        result = mycursor.fetchall()
+        print(result)
+        mydb.commit()
+        if result:
+            last_id = result[0][0]  # Get the first element of the first tuple
+            print(last_id)
+            
+            query = """
+                UPDATE portfoliostrategyvariableslegs 
+                SET lots = %s,position = %s,option_type = %s,expiry = %s,no_of_reentry = %s,strike_selection_criteria = %s,closest_premium = %s,strike_type = %s,
+                        straddle_width_value = %s,straddle_width_sign = %s,percent_of_atm_strike_value = %s,percent_of_atm_strike_sign = %s,
+                        atm_straddle_premium = %s,strike_selection_criteria_stop_loss = %s,strike_selection_criteria_stop_loss_sign = %s,strike_selection_criteria_trailing_options = %s,
+                        strike_selection_criteria_profit_reaches = %s,strike_selection_criteria_lock_profit = %s,strike_selection_criteria_lock_profit_sign = %s,
+                        strike_selection_criteria_increase_in_profit = %s,strike_selection_criteria_trail_profit = %s,strike_selection_criteria_trail_profit_sign = %s,
+                        roll_strike = %s,roll_strike_strike_type = %s,roll_strike_stop_loss = %s,roll_strike_stop_loss_sign = %s,roll_strike_trailing_options = %s,roll_strike_profit_reaches = %s,
+                        roll_strike_lock_profit = %s,roll_strike_lock_profit_sign = %s,roll_strike_increase_in_profit = %s,roll_strike_trail_profit = %s,
+                        roll_strike_trail_profit_sign = %s,simple_momentum_range_breakout = %s,simple_momentum = %s,simple_momentum_sign = %s,
+                        simple_momentum_direction = %s,range_breakout = %s
+                    WHERE portfolio_strategy_variables_id = %s AND id = %s
+                """
+                
+                # Prepare the values for the UPDATE query
+            for leg_value in leg_values:
+                values = (
+                        leg_value.get('lots'),
+                        leg_value.get('position'),
+                        leg_value.get('option_type'),
+                        leg_value.get('expiry'),
+                        leg_value.get('no_of_reentry'),
+                        leg_value.get('strike_selection_criteria'),
+                        leg_value.get('closest_premium'),
+                        leg_value.get('strike_type'),
+                        leg_value.get('straddle_width_value'),
+                        leg_value.get('straddle_width_sign'),
+                        leg_value.get('percent_of_atm_strike_value'),
+                        leg_value.get('percent_of_atm_strike_sign'),
+                        leg_value.get('atm_straddle_premium'),
+                        leg_value.get('strike_selection_criteria_stop_loss'),
+                        leg_value.get('strike_selection_criteria_stop_loss_sign'),
+                        leg_value.get('strike_selection_criteria_trailing_options'),
+                        leg_value.get('strike_selection_criteria_profit_reaches'),
+                        leg_value.get('strike_selection_criteria_lock_profit'),
+                        leg_value.get('strike_selection_criteria_lock_profit_sign'),
+                        leg_value.get('strike_selection_criteria_increase_in_profit'),
+                        leg_value.get('strike_selection_criteria_trail_profit'),
+                        leg_value.get('strike_selection_criteria_trail_profit_sign'),
+                        leg_value.get('roll_strike'),
+                        leg_value.get('roll_strike_strike_type'),
+                        leg_value.get('roll_strike_stop_loss'),
+                        leg_value.get('roll_strike_stop_loss_sign'),
+                        leg_value.get('roll_strike_trailing_options'),
+                        leg_value.get('roll_strike_profit_reaches'),
+                        leg_value.get('roll_strike_lock_profit'),
+                        leg_value.get('roll_strike_lock_profit_sign'),
+                        leg_value.get('roll_strike_increase_in_profit'),
+                        leg_value.get('roll_strike_trail_profit'),
+                        leg_value.get('roll_strike_trail_profit_sign'),
+                        leg_value.get('simple_momentum_range_breakout'),
+                        leg_value.get('simple_momentum'),
+                        leg_value.get('simple_momentum_sign'),
+                        leg_value.get('simple_momentum_direction'),
+                        leg_value.get('range_breakout'),
+                        portfolio_strategy_variable_id,  # Assuming you are using this as a condition
+                        last_id     # Assuming this is the identifier for the row to update
+                    )
+                    
+                    # Execute the UPDATE query
+                mycursor.execute(query, values)
+                mydb.commit()
+                    
+                print("Update successful in portfoliostrategyvariableslegs table!")
+        else:
+            last_id = None
+            query = """
+                            INSERT INTO portfoliostrategyvariableslegs (
+                                portfolio_strategy_variables_id, lots, position, option_type, expiry, no_of_reentry,
+                                strike_selection_criteria, closest_premium, strike_type, straddle_width_value, straddle_width_sign,
+                                percent_of_atm_strike_value, percent_of_atm_strike_sign, atm_straddle_premium,
+                                strike_selection_criteria_stop_loss, strike_selection_criteria_stop_loss_sign,
+                                strike_selection_criteria_trailing_options, strike_selection_criteria_profit_reaches,
+                                strike_selection_criteria_lock_profit, strike_selection_criteria_lock_profit_sign,
+                                strike_selection_criteria_increase_in_profit, strike_selection_criteria_trail_profit,
+                                strike_selection_criteria_trail_profit_sign, roll_strike, roll_strike_strike_type,
+                                roll_strike_stop_loss, roll_strike_stop_loss_sign, roll_strike_trailing_options,
+                                roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign,
+                                roll_strike_increase_in_profit, roll_strike_trail_profit, roll_strike_trail_profit_sign,
+                                simple_momentum_range_breakout, simple_momentum, simple_momentum_sign, simple_momentum_direction,
+                                range_breakout
+                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        """
+            for leg_value in values:
+                values = (
+                                portfolio_strategy_variable_id,  #
+                                leg_value.get('lots'),
+                                leg_value.get('position'),
+                                leg_value.get('option_type'),
+                                leg_value.get('expiry'),
+                                leg_value.get('no_of_reentry'),
+                                leg_value.get('strike_selection_criteria'),
+                                leg_value.get('closest_premium'),
+                                leg_value.get('strike_type'),
+                                leg_value.get('straddle_width_value'),
+                                leg_value.get('straddle_width_sign'),
+                                leg_value.get('percent_of_atm_strike_value'),
+                                leg_value.get('percent_of_atm_strike_sign'),
+                                leg_value.get('atm_straddle_premium'),
+                                leg_value.get('strike_selection_criteria_stop_loss'),
+                                leg_value.get('strike_selection_criteria_stop_loss_sign'),
+                                leg_value.get('strike_selection_criteria_trailing_options'),
+                                leg_value.get('strike_selection_criteria_profit_reaches'),
+                                leg_value.get('strike_selection_criteria_lock_profit'),
+                                leg_value.get('strike_selection_criteria_lock_profit_sign'),
+                                leg_value.get('strike_selection_criteria_increase_in_profit'),
+                                leg_value.get('strike_selection_criteria_trail_profit'),
+                                leg_value.get('strike_selection_criteria_trail_profit_sign'),
+                                leg_value.get('roll_strike'),
+                                leg_value.get('roll_strike_strike_type'),
+                                leg_value.get('roll_strike_stop_loss'),
+                                leg_value.get('roll_strike_stop_loss_sign'),
+                                leg_value.get('roll_strike_trailing_options'),
+                                leg_value.get('roll_strike_profit_reaches'),
+                                leg_value.get('roll_strike_lock_profit'),
+                                leg_value.get('roll_strike_lock_profit_sign'),
+                                leg_value.get('roll_strike_increase_in_profit'),
+                                leg_value.get('roll_strike_trail_profit'),
+                                leg_value.get('roll_strike_trail_profit_sign'),
+                                leg_value.get('simple_momentum_range_breakout'),
+                                leg_value.get('simple_momentum'),
+                                leg_value.get('simple_momentum_sign'),
+                                leg_value.get('simple_momentum_direction'),
+                                leg_value.get('range_breakout')
+                            )
+                        
+                mycursor.execute(query, values)
+                mydb.commit()
+                print("Insertion successful into portfoliostrategyvariableslegs table!")
+                last_id = mycursor.lastrowid  # Get the inserted portfolio_strategy_id
+                print("Portfolio Strategy variable leg ID:", last_id)
+            
+        
+        
+    def deletestrategies(self,my_list,portId):
+        mycursor = mydb.cursor()
+        for value in my_list:
+            query = "Delete from portfoliostrategies where portfolio_id=%s and strategy_id=%s"
+            mycursor.execute(query, (portId,value,))
+            print("Data deeleted from portfoliostrategies where strategy id =" + str(value))
+            mydb.commit()
+            
+    
+    def get_Strategy_ids(self,portId):
+        mycursor = mydb.cursor()
+        json_id = []
+        query = "SELECT strategy_id from portfoliostrategies WHERE portfolio_id=%s"
+        mycursor.execute(query, (portId,))
+        result = mycursor.fetchall()
+        table_ids = [row[0] for row in result]
+        return table_ids
 
     def insert_data(self,portfolio,strategies,strategyvariables,legs):
         mycursor = mydb.cursor()
@@ -219,162 +565,17 @@ class PortfolioRepo:
 
         mycursor.close()
      
-    def update_data(self,portfolio,strategies,strategyvariables,legs,portId):
+    #def update_data(self,portfolio,strategies,strategyvariables,legs,portId):
 
-            
-        mycursor = mydb.cursor()
         
-        check_query = "SELECT COUNT(*) FROM portfolio WHERE id = %s"
-        mycursor.execute(check_query, (portId,))
-        result = mycursor.fetchone()
-        # print(result[0])
-        if result[0]== 0:
-            print(f"Portfolio ID {portId} does not exist.")
-            self.insert_data(portfolio, strategies, strategyvariables, legs)
-        else: 
-            query = "UPDATE portfolio SET name = %s WHERE id = %s"
-            try:
-                name_value = (portfolio.name, portId)
-                mycursor.execute(query, name_value)
-                mydb.commit()
-                print("Data updated successfully in portfolio table.")
-            except Exception as e:
-                print("Error updating portfolio table:", e)
-                return
-            json_id =[]
-            query = "SELECT strategy_id FROM portfoliostrategies WHERE portfolio_id = %s"
-            mycursor.execute(query, (portId,))
-            existing_strategies = mycursor.fetchall()
-            ids = [row[0] for row in existing_strategies]
-            print(ids)
-            #print(existing_strategies)
-            for strategy in strategies:
-               json_id.append(strategy.strategy_id)
-            # Process strategies from JSON
-            
-            print(json_id)
-            integer_list = [int(item) for item in json_id]
-            print(integer_list)
-            
-            # Update or insert strategies\
-            for strategy in strategies:
-                print(strategy.strategy_id)
-                value = strategy.strategy_id
-                if value in ids:
-                    
-                    query = "SELECT strategy_id FROM portfoliostrategies WHERE portfolio_id = %s and strategy_id = %s"
-                    mycursor.execute(query, (portId,strategy.strategy_id))
-                    result = mycursor.fetchall()
-                    db_ids = [row[0] for row in result]
-                    for db_id in db_ids:
-                    # Update existing strategy
-                        
-                        update_query = """
-                            UPDATE portfoliostrategies
-                            SET strategy_id = %s, symbol = %s, quantity_multiplier = %s, monday = %s, tuesday = %s, wednesday = %s, thrusday = %s, friday = %s
-                            WHERE id = %s
-                        """
-                        update_values = (
-                            strategy.strategy_id,
-                            strategy.symbol,
-                            strategy.quantity_multiplier,
-                            strategy.monday,
-                            strategy.tuesday,
-                            strategy.wednesday,
-                            strategy.thrusday,  # corrected spelling of 'thursday'
-                            strategy.friday,
-                            db_id
-                        )
-                        try:
-                            mycursor.execute(update_query, update_values)
-                            mydb.commit()
-                            print(f"Strategy ID {strategy.strategy_id} updated successfully.")
-                        except Exception as e:
-                            print(f"Error updating strategy ID {strategy.strategy_id}:", e)
-                            return
-                '''
-                else:
-                    # Insert new strategy
-                    insert_query = """
-                        INSERT INTO portfoliostrategies (portfolio_id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    """
-                    insert_values = (
-                        portId,
-                        strategy.strategy_id,
-                        strategy.symbol,
-                        strategy.quantity_multiplier,
-                        strategy.monday,
-                        strategy.tuesday,
-                        strategy.wednesday,
-                        strategy.thrusday,  # corrected spelling of 'thursday'
-                        strategy.friday
-                    )
-                    try:
-                        mycursor.execute(insert_query, insert_values)
-                        mydb.commit()
-                        print(f"Strategy ID {strategy.strategy_id} inserted successfully.")
-                    except Exception as e:
-                        print(f"Error inserting strategy ID {strategy.strategy_id}:", e)
-                        return
-                '''
-        # Delete strategies that are no longer in JSON
-            
-            
-            
-        
-        
-    '''
-    def update_data(self, portfolio_data, strategy_data, strategyId):
-        try:
-            # Connect to MySQL
-            mycursor = mydb.cursor()
+
+      #Update Portofloio
+      #update_portfolio(portfolio,portId)
+      
+
+      #update_Strategy(strategies,portId)
+      
     
-            # Delete existing records for the given portfolio_Id
-            delete_query = "DELETE FROM portfoliostrategies WHERE portfolio_id = %s"
-            delete_values = (strategyId,)
-            mycursor.execute(delete_query, delete_values)
-            print(f"Deleted existing portfolio strategies for portfolio with ID: {strategyId}")
-    
-            # Insert new values
-            insert_query = """
-                INSERT INTO portfoliostrategies (portfolio_id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """
-            
-            for strategy in strategy_data:
-                strategy_id = strategy.strategy_id
-                symbol = strategy.symbol 
-                quantity_multiplier = strategy.quantity_multiplier
-                monday = strategy.monday
-                tuesday = strategy.tuesday
-                wednesday = strategy.wednesday
-                thrusday = strategy.thrusday  # Corrected typo 'thrusday' to 'thrusday'
-                friday = strategy.friday
-                
-                insert_values = (
-                    strategyId, strategy_id, symbol, quantity_multiplier,
-                    monday, tuesday, wednesday, thrusday, friday
-                )
-                mycursor.execute(insert_query, insert_values)
-                print(f"Inserted new portfolio strategy for strategy_id: {strategy_id}")
-    
-            # Commit changes and close cursor
-            mydb.commit()
-            mycursor.close()
-    
-            # Optionally, update portfolio name (as per your original code)
-            update_portfolio_query = "UPDATE portfolio SET name = %s WHERE id = %s"
-            update_portfolio_values = (portfolio_data.name, strategyId)
-            mycursor = mydb.cursor()
-            mycursor.execute(update_portfolio_query, update_portfolio_values)
-            mydb.commit()
-            print(f"Updated portfolio name for portfolio with ID: {strategyId}")
-    
-        except Exception as e:
-            print(f"Error updating data: {str(e)}")
-            mydb.rollback()  # Rollback in case of error
-     '''
     def getAllPortfolio(self):
         try:
             mycursor = mydb.cursor(dictionary=True)
