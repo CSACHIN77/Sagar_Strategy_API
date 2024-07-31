@@ -164,7 +164,7 @@ class Portfolioservice:
         repo.update_portfolio(portfolio,strategyId)
         
         #Deleting record which do not needed
-        #strategy_id_list = refactor_strategy(data['strategies'],strategyId)
+        refactor_strategy(data['strategies'],strategyId)
         
         #Insert and update
         for strategy_data in data['strategies']: 
@@ -174,11 +174,10 @@ class Portfolioservice:
             variables = strategy_data['strategyvariables']
             portfolio_strategy_variable_id = repo.portfolio_strategy_variable_insert_update(variables,strategy_id)
             
-            legs_data = variables['legs']
-            
+            legs_data = variables['legs']   
             repo.portfolio_strategy_variable_leg_insert_update(legs_data,portfolio_strategy_variable_id)
             
-        refactor_strategy(data['strategies'],strategyId)
+        
         # Iterate over each strategy in the data
         '''
         for strategy_data in data['strategies']: 
