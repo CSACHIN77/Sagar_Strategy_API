@@ -210,8 +210,72 @@ def update_Strategy(strategies,portId):
         print("Data updated successfully in portfolio table")
     
     
-    
-
+def update_legs(leg_value,last_id,leg_ids,portfolio_strategy_variable_id):
+    print("Updating id is : ",str(last_id))
+    mycursor = mydb.cursor()
+    query = """
+    UPDATE portfoliostrategyvariableslegs 
+    SET lots = %s,position = %s,option_type = %s,expiry = %s,no_of_reentry = %s,strike_selection_criteria = %s,closest_premium = %s,strike_type = %s,
+            straddle_width_value = %s,straddle_width_sign = %s,percent_of_atm_strike_value = %s,percent_of_atm_strike_sign = %s,
+            atm_straddle_premium = %s,strike_selection_criteria_stop_loss = %s,strike_selection_criteria_stop_loss_sign = %s,strike_selection_criteria_trailing_options = %s,
+            strike_selection_criteria_profit_reaches = %s,strike_selection_criteria_lock_profit = %s,strike_selection_criteria_lock_profit_sign = %s,
+            strike_selection_criteria_increase_in_profit = %s,strike_selection_criteria_trail_profit = %s,strike_selection_criteria_trail_profit_sign = %s,
+            roll_strike = %s,roll_strike_strike_type = %s,roll_strike_stop_loss = %s,roll_strike_stop_loss_sign = %s,roll_strike_trailing_options = %s,roll_strike_profit_reaches = %s,
+            roll_strike_lock_profit = %s,roll_strike_lock_profit_sign = %s,roll_strike_increase_in_profit = %s,roll_strike_trail_profit = %s,
+            roll_strike_trail_profit_sign = %s,simple_momentum_range_breakout = %s,simple_momentum = %s,simple_momentum_sign = %s,
+            simple_momentum_direction = %s,range_breakout = %s
+        WHERE portfolio_strategy_variables_id = %s AND id = %s
+    """
+    # Prepare the values for the UPDATE query
+    values = (
+            leg_value.get('lots'),
+            leg_value.get('position'),
+            leg_value.get('option_type'),
+            leg_value.get('expiry'),
+            leg_value.get('no_of_reentry'),
+            leg_value.get('strike_selection_criteria'),
+            leg_value.get('closest_premium'),
+            leg_value.get('strike_type'),
+            leg_value.get('straddle_width_value'),
+            leg_value.get('straddle_width_sign'),
+            leg_value.get('percent_of_atm_strike_value'),
+            leg_value.get('percent_of_atm_strike_sign'),
+            leg_value.get('atm_straddle_premium'),
+            leg_value.get('strike_selection_criteria_stop_loss'),
+            leg_value.get('strike_selection_criteria_stop_loss_sign'),
+            leg_value.get('strike_selection_criteria_trailing_options'),
+            leg_value.get('strike_selection_criteria_profit_reaches'),
+            leg_value.get('strike_selection_criteria_lock_profit'),
+            leg_value.get('strike_selection_criteria_lock_profit_sign'),
+            leg_value.get('strike_selection_criteria_increase_in_profit'),
+            leg_value.get('strike_selection_criteria_trail_profit'),
+            leg_value.get('strike_selection_criteria_trail_profit_sign'),
+            leg_value.get('roll_strike'),
+            leg_value.get('roll_strike_strike_type'),
+            leg_value.get('roll_strike_stop_loss'),
+            leg_value.get('roll_strike_stop_loss_sign'),
+            leg_value.get('roll_strike_trailing_options'),
+            leg_value.get('roll_strike_profit_reaches'),
+            leg_value.get('roll_strike_lock_profit'),
+            leg_value.get('roll_strike_lock_profit_sign'),
+            leg_value.get('roll_strike_increase_in_profit'),
+            leg_value.get('roll_strike_trail_profit'),
+            leg_value.get('roll_strike_trail_profit_sign'),
+            leg_value.get('simple_momentum_range_breakout'),
+            leg_value.get('simple_momentum'),
+            leg_value.get('simple_momentum_sign'),
+            leg_value.get('simple_momentum_direction'),
+            leg_value.get('range_breakout'),
+            portfolio_strategy_variable_id,  # Assuming you are using this as a condition
+            last_id     # Assuming this is the identifier for the row to update
+        )
+        
+        # Execute the UPDATE query
+    mycursor.execute(query, values)
+    mydb.commit()
+    print("Update successful in portfoliostrategyvariableslegs table!")
+    leg_ids.remove(last_id)
+    return leg_ids
     
 
 class PortfolioRepo:
@@ -375,83 +439,26 @@ class PortfolioRepo:
     
     def portfolio_strategy_variable_leg_insert_update(self,leg_values,portfolio_strategy_variable_id):
         mycursor = mydb.cursor()
-        
+        leg_ids =[]
         query = "SELECT id from portfoliostrategyvariableslegs where portfolio_strategy_variables_id = %s"
         mycursor.execute(query, (portfolio_strategy_variable_id,))
         result = mycursor.fetchall()
         print(result)
         mydb.commit()
-        if result:
-            last_id = result[0][0]  # Get the first element of the first tuple
-            print(last_id)
-            
-            query = """
-                UPDATE portfoliostrategyvariableslegs 
-                SET lots = %s,position = %s,option_type = %s,expiry = %s,no_of_reentry = %s,strike_selection_criteria = %s,closest_premium = %s,strike_type = %s,
-                        straddle_width_value = %s,straddle_width_sign = %s,percent_of_atm_strike_value = %s,percent_of_atm_strike_sign = %s,
-                        atm_straddle_premium = %s,strike_selection_criteria_stop_loss = %s,strike_selection_criteria_stop_loss_sign = %s,strike_selection_criteria_trailing_options = %s,
-                        strike_selection_criteria_profit_reaches = %s,strike_selection_criteria_lock_profit = %s,strike_selection_criteria_lock_profit_sign = %s,
-                        strike_selection_criteria_increase_in_profit = %s,strike_selection_criteria_trail_profit = %s,strike_selection_criteria_trail_profit_sign = %s,
-                        roll_strike = %s,roll_strike_strike_type = %s,roll_strike_stop_loss = %s,roll_strike_stop_loss_sign = %s,roll_strike_trailing_options = %s,roll_strike_profit_reaches = %s,
-                        roll_strike_lock_profit = %s,roll_strike_lock_profit_sign = %s,roll_strike_increase_in_profit = %s,roll_strike_trail_profit = %s,
-                        roll_strike_trail_profit_sign = %s,simple_momentum_range_breakout = %s,simple_momentum = %s,simple_momentum_sign = %s,
-                        simple_momentum_direction = %s,range_breakout = %s
-                    WHERE portfolio_strategy_variables_id = %s AND id = %s
-                """
-                
-                # Prepare the values for the UPDATE query
-            for leg_value in leg_values:
-                values = (
-                        leg_value.get('lots'),
-                        leg_value.get('position'),
-                        leg_value.get('option_type'),
-                        leg_value.get('expiry'),
-                        leg_value.get('no_of_reentry'),
-                        leg_value.get('strike_selection_criteria'),
-                        leg_value.get('closest_premium'),
-                        leg_value.get('strike_type'),
-                        leg_value.get('straddle_width_value'),
-                        leg_value.get('straddle_width_sign'),
-                        leg_value.get('percent_of_atm_strike_value'),
-                        leg_value.get('percent_of_atm_strike_sign'),
-                        leg_value.get('atm_straddle_premium'),
-                        leg_value.get('strike_selection_criteria_stop_loss'),
-                        leg_value.get('strike_selection_criteria_stop_loss_sign'),
-                        leg_value.get('strike_selection_criteria_trailing_options'),
-                        leg_value.get('strike_selection_criteria_profit_reaches'),
-                        leg_value.get('strike_selection_criteria_lock_profit'),
-                        leg_value.get('strike_selection_criteria_lock_profit_sign'),
-                        leg_value.get('strike_selection_criteria_increase_in_profit'),
-                        leg_value.get('strike_selection_criteria_trail_profit'),
-                        leg_value.get('strike_selection_criteria_trail_profit_sign'),
-                        leg_value.get('roll_strike'),
-                        leg_value.get('roll_strike_strike_type'),
-                        leg_value.get('roll_strike_stop_loss'),
-                        leg_value.get('roll_strike_stop_loss_sign'),
-                        leg_value.get('roll_strike_trailing_options'),
-                        leg_value.get('roll_strike_profit_reaches'),
-                        leg_value.get('roll_strike_lock_profit'),
-                        leg_value.get('roll_strike_lock_profit_sign'),
-                        leg_value.get('roll_strike_increase_in_profit'),
-                        leg_value.get('roll_strike_trail_profit'),
-                        leg_value.get('roll_strike_trail_profit_sign'),
-                        leg_value.get('simple_momentum_range_breakout'),
-                        leg_value.get('simple_momentum'),
-                        leg_value.get('simple_momentum_sign'),
-                        leg_value.get('simple_momentum_direction'),
-                        leg_value.get('range_breakout'),
-                        portfolio_strategy_variable_id,  # Assuming you are using this as a condition
-                        last_id     # Assuming this is the identifier for the row to update
-                    )
-                    
-                    # Execute the UPDATE query
-                mycursor.execute(query, values)
-                mydb.commit()
-                    
-                print("Update successful in portfoliostrategyvariableslegs table!")
-        else:
-            last_id = None
-            query = """
+        for value in result:
+            leg_ids.append(value[0])
+        
+        print(leg_ids)
+        for leg_value in leg_values:
+            if len(leg_ids) != 0:
+                last_id = leg_ids[0]
+                print(last_id)
+                leg_ids = update_legs(leg_value,last_id,leg_ids,portfolio_strategy_variable_id)
+                print("Updated legs from db ")
+                print(leg_ids)
+            else:
+                last_id = None
+                query = """
                             INSERT INTO portfoliostrategyvariableslegs (
                                 portfolio_strategy_variables_id, lots, position, option_type, expiry, no_of_reentry,
                                 strike_selection_criteria, closest_premium, strike_type, straddle_width_value, straddle_width_sign,
@@ -468,7 +475,7 @@ class PortfolioRepo:
                                 range_breakout
                             ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """
-            for leg_value in values:
+            
                 values = (
                                 portfolio_strategy_variable_id,  #
                                 leg_value.get('lots'),
@@ -517,7 +524,7 @@ class PortfolioRepo:
                 last_id = mycursor.lastrowid  # Get the inserted portfolio_strategy_id
                 print("Portfolio Strategy variable leg ID:", last_id)
             
-        
+
         
     def deletestrategies(self,my_list,portId):
         mycursor = mydb.cursor()
