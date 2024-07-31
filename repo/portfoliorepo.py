@@ -536,7 +536,7 @@ class PortfolioRepo:
             
     
     def get_Strategy_ids(self,portId):
-        mycursor = mydb.cursor()
+        mycursor = mydb.cursor() 
         json_id = []
         query = "SELECT strategy_id from portfoliostrategies WHERE portfolio_id=%s"
         mycursor.execute(query, (portId,))
