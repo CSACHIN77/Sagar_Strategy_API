@@ -17,138 +17,143 @@ DB_CONNECTION_PARAMS = {
 
 def convert_to_json(result, portfolio_id, value):
     portfolios = []
-    mycursor = mydb.cursor(dictionary=True)
+    connection = mysql.connector.connect(
+      **DB_CONNECTION_PARAMS
+      )
 
-    for row in result:
-        strategy = {
-            "id": row["id"],
-            "name": row["name"],
-            "strategies": []
-        }
-        
-        leg_sql = """SELECT id, portfolio_Id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday 
-                     FROM portfoliostrategies 
-                     WHERE portfolio_Id = %s"""
-        mycursor.execute(leg_sql, (portfolio_id,))
-        leg_rows = mycursor.fetchall()
-        
-        for leg_row in leg_rows:
-            strategies = {
-                "id": leg_row["id"],
-                "portfolio_Id": leg_row["portfolio_Id"],
-                "strategy_id": leg_row["strategy_id"],
-                "symbol": leg_row["symbol"],
-                "quantity_multiplier": leg_row["quantity_multiplier"],
-                "monday": bool(leg_row["monday"]),
-                "tuesday": bool(leg_row["tuesday"]),
-                "wednesday": bool(leg_row["wednesday"]),
-                "thrusday": bool(leg_row["thrusday"]),
-                "friday": bool(leg_row["friday"]),
-                "strategyvariables": {}
+    if connection.is_connected():
+        mycursor = connection.cursor(dictionary=True)
+
+        for row in result:
+            strategy = {
+                "id": row["id"],
+                "name": row["name"],
+                "strategies": []
             }
             
-            var_query = """SELECT id, portfolio_strategy_id, underlying, strategy_type, quantity_multiplier, implied_futures_expiry,
-                                  entry_time, last_entry_time, exit_time, square_off, overall_sl, overall_target, trailing_options,
-                                  profit_reaches, lock_profit, increase_in_profit, trail_profit 
-                           FROM portfoliostrategyvariables 
-                           WHERE portfolio_strategy_id = %s"""
-            mycursor.execute(var_query, (leg_row["id"],))
-            var = mycursor.fetchone()
+            leg_sql = """SELECT id, portfolio_Id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday 
+                         FROM portfoliostrategies 
+                         WHERE portfolio_Id = %s"""
+            mycursor.execute(leg_sql, (portfolio_id,))
+            leg_rows = mycursor.fetchall()
             
-            if var:
-                strategyvariables = {
-                    "id": var["id"],
-                    "portfolio_strategy_id": var["portfolio_strategy_id"],
-                    "underlying": var["underlying"],
-                    "strategy_type": var["strategy_type"],
-                    "quantity_multiplier": var["quantity_multiplier"],
-                    "implied_futures_expiry": var["implied_futures_expiry"],
-                    "entry_time": var["entry_time"],
-                    "last_entry_time": var["last_entry_time"],
-                    "exit_time": var["exit_time"],
-                    "square_off": var["square_off"],
-                    "overall_sl": var["overall_sl"],
-                    "overall_target": var["overall_target"],
-                    "trailing_options": var["trailing_options"],
-                    "profit_reaches": var["profit_reaches"],
-                    "lock_profit": var["lock_profit"],
-                    "increase_in_profit": var["increase_in_profit"],
-                    "trail_profit": var["trail_profit"],
-                    "legs": []
+            for leg_row in leg_rows:
+                strategies = {
+                    "id": leg_row["id"],
+                    "portfolio_Id": leg_row["portfolio_Id"],
+                    "strategy_id": leg_row["strategy_id"],
+                    "symbol": leg_row["symbol"],
+                    "quantity_multiplier": leg_row["quantity_multiplier"],
+                    "monday": bool(leg_row["monday"]),
+                    "tuesday": bool(leg_row["tuesday"]),
+                    "wednesday": bool(leg_row["wednesday"]),
+                    "thrusday": bool(leg_row["thrusday"]),
+                    "friday": bool(leg_row["friday"]),
+                    "strategyvariables": {}
                 }
                 
-                leg_var_query = """SELECT id, portfolio_strategy_variables_id, lots, position, option_type, expiry, no_of_reentry,
-                                          strike_selection_criteria, closest_premium, strike_type, straddle_width_value, straddle_width_sign,
-                                          percent_of_atm_strike_value, percent_of_atm_strike_sign, atm_straddle_premium,
-                                          strike_selection_criteria_stop_loss, strike_selection_criteria_stop_loss_sign,
-                                          strike_selection_criteria_trailing_options, strike_selection_criteria_profit_reaches,
-                                          strike_selection_criteria_lock_profit, strike_selection_criteria_lock_profit_sign,
-                                          strike_selection_criteria_increase_in_profit, strike_selection_criteria_trail_profit,
-                                          strike_selection_criteria_trail_profit_sign, roll_strike, roll_strike_strike_type,
-                                          roll_strike_stop_loss, roll_strike_stop_loss_sign, roll_strike_trailing_options,
-                                          roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign,
-                                          roll_strike_increase_in_profit, roll_strike_trail_profit, roll_strike_trail_profit_sign,
-                                          simple_momentum_range_breakout, simple_momentum, simple_momentum_sign, simple_momentum_direction,
-                                          range_breakout 
-                                   FROM portfoliostrategyvariableslegs 
-                                   WHERE portfolio_strategy_variables_id = %s"""
-                mycursor.execute(leg_var_query, (var["id"],))
-                leg_values = mycursor.fetchall()
+                var_query = """SELECT id, portfolio_strategy_id, underlying, strategy_type, quantity_multiplier, implied_futures_expiry,
+                                      entry_time, last_entry_time, exit_time, square_off, overall_sl, overall_target, trailing_options,
+                                      profit_reaches, lock_profit, increase_in_profit, trail_profit 
+                               FROM portfoliostrategyvariables 
+                               WHERE portfolio_strategy_id = %s"""
+                mycursor.execute(var_query, (leg_row["id"],))
+                var = mycursor.fetchone()
                 
-                for leg_value in leg_values:
-                    legs = {
-                        "id": leg_value["id"],
-                        "portfolio_strategy_variables_id": leg_value["portfolio_strategy_variables_id"],
-                        "lots": leg_value["lots"],
-                        "position": leg_value["position"],
-                        "option_type": leg_value["option_type"],
-                        "expiry": leg_value["expiry"],
-                        "no_of_reentry": leg_value["no_of_reentry"],
-                        "strike_selection_criteria": leg_value["strike_selection_criteria"],
-                        "closest_premium": leg_value["closest_premium"],
-                        "strike_type": leg_value["strike_type"],
-                        "straddle_width_value": leg_value["straddle_width_value"],
-                        "straddle_width_sign": leg_value["straddle_width_sign"],
-                        "percent_of_atm_strike_value": leg_value["percent_of_atm_strike_value"],
-                        "percent_of_atm_strike_sign": leg_value["percent_of_atm_strike_sign"],
-                        "atm_straddle_premium": leg_value["atm_straddle_premium"],
-                        "strike_selection_criteria_stop_loss": leg_value["strike_selection_criteria_stop_loss"],
-                        "strike_selection_criteria_stop_loss_sign": leg_value["strike_selection_criteria_stop_loss_sign"],
-                        "strike_selection_criteria_trailing_options": leg_value["strike_selection_criteria_trailing_options"],
-                        "strike_selection_criteria_profit_reaches": leg_value["strike_selection_criteria_profit_reaches"],
-                        "strike_selection_criteria_lock_profit": leg_value["strike_selection_criteria_lock_profit"],
-                        "strike_selection_criteria_lock_profit_sign": leg_value["strike_selection_criteria_lock_profit_sign"],
-                        "strike_selection_criteria_increase_in_profit": leg_value["strike_selection_criteria_increase_in_profit"],
-                        "strike_selection_criteria_trail_profit": leg_value["strike_selection_criteria_trail_profit"],
-                        "strike_selection_criteria_trail_profit_sign": leg_value["strike_selection_criteria_trail_profit_sign"],
-                        "roll_strike": leg_value["roll_strike"],
-                        "roll_strike_strike_type": leg_value["roll_strike_strike_type"],
-                        "roll_strike_stop_loss": leg_value["roll_strike_stop_loss"],
-                        "roll_strike_stop_loss_sign": leg_value["roll_strike_stop_loss_sign"],
-                        "roll_strike_trailing_options": leg_value["roll_strike_trailing_options"],
-                        "roll_strike_profit_reaches": leg_value["roll_strike_profit_reaches"],
-                        "roll_strike_lock_profit": leg_value["roll_strike_lock_profit"],
-                        "roll_strike_lock_profit_sign": leg_value["roll_strike_lock_profit_sign"],
-                        "roll_strike_increase_in_profit": leg_value["roll_strike_increase_in_profit"],
-                        "roll_strike_trail_profit": leg_value["roll_strike_trail_profit"],
-                        "roll_strike_trail_profit_sign": leg_value["roll_strike_trail_profit_sign"],
-                        "simple_momentum_range_breakout": leg_value["simple_momentum_range_breakout"],
-                        "simple_momentum": leg_value["simple_momentum"],
-                        "simple_momentum_sign": leg_value["simple_momentum_sign"],
-                        "simple_momentum_direction": leg_value["simple_momentum_direction"],
-                        "range_breakout": leg_value["range_breakout"]
+                if var:
+                    strategyvariables = {
+                        "id": var["id"],
+                        "portfolio_strategy_id": var["portfolio_strategy_id"],
+                        "underlying": var["underlying"],
+                        "strategy_type": var["strategy_type"],
+                        "quantity_multiplier": var["quantity_multiplier"],
+                        "implied_futures_expiry": var["implied_futures_expiry"],
+                        "entry_time": var["entry_time"],
+                        "last_entry_time": var["last_entry_time"],
+                        "exit_time": var["exit_time"],
+                        "square_off": var["square_off"],
+                        "overall_sl": var["overall_sl"],
+                        "overall_target": var["overall_target"],
+                        "trailing_options": var["trailing_options"],
+                        "profit_reaches": var["profit_reaches"],
+                        "lock_profit": var["lock_profit"],
+                        "increase_in_profit": var["increase_in_profit"],
+                        "trail_profit": var["trail_profit"],
+                        "legs": []
                     }
-                    strategyvariables["legs"].append(legs)
-                
-                strategies["strategyvariables"] = strategyvariables
-            strategy["strategies"].append(strategies)
-
-        portfolios.append(strategy)
+                    
+                    leg_var_query = """SELECT id, portfolio_strategy_variables_id, lots, position, option_type, expiry, no_of_reentry,
+                                              strike_selection_criteria, closest_premium, strike_type, straddle_width_value, straddle_width_sign,
+                                              percent_of_atm_strike_value, percent_of_atm_strike_sign, atm_straddle_premium,
+                                              strike_selection_criteria_stop_loss, strike_selection_criteria_stop_loss_sign,
+                                              strike_selection_criteria_trailing_options, strike_selection_criteria_profit_reaches,
+                                              strike_selection_criteria_lock_profit, strike_selection_criteria_lock_profit_sign,
+                                              strike_selection_criteria_increase_in_profit, strike_selection_criteria_trail_profit,
+                                              strike_selection_criteria_trail_profit_sign, roll_strike, roll_strike_strike_type,
+                                              roll_strike_stop_loss, roll_strike_stop_loss_sign, roll_strike_trailing_options,
+                                              roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign,
+                                              roll_strike_increase_in_profit, roll_strike_trail_profit, roll_strike_trail_profit_sign,
+                                              simple_momentum_range_breakout, simple_momentum, simple_momentum_sign, simple_momentum_direction,
+                                              range_breakout 
+                                       FROM portfoliostrategyvariableslegs 
+                                       WHERE portfolio_strategy_variables_id = %s"""
+                    mycursor.execute(leg_var_query, (var["id"],))
+                    leg_values = mycursor.fetchall()
+                    
+                    for leg_value in leg_values:
+                        legs = {
+                            "id": leg_value["id"],
+                            "portfolio_strategy_variables_id": leg_value["portfolio_strategy_variables_id"],
+                            "lots": leg_value["lots"],
+                            "position": leg_value["position"],
+                            "option_type": leg_value["option_type"],
+                            "expiry": leg_value["expiry"],
+                            "no_of_reentry": leg_value["no_of_reentry"],
+                            "strike_selection_criteria": leg_value["strike_selection_criteria"],
+                            "closest_premium": leg_value["closest_premium"],
+                            "strike_type": leg_value["strike_type"],
+                            "straddle_width_value": leg_value["straddle_width_value"],
+                            "straddle_width_sign": leg_value["straddle_width_sign"],
+                            "percent_of_atm_strike_value": leg_value["percent_of_atm_strike_value"],
+                            "percent_of_atm_strike_sign": leg_value["percent_of_atm_strike_sign"],
+                            "atm_straddle_premium": leg_value["atm_straddle_premium"],
+                            "strike_selection_criteria_stop_loss": leg_value["strike_selection_criteria_stop_loss"],
+                            "strike_selection_criteria_stop_loss_sign": leg_value["strike_selection_criteria_stop_loss_sign"],
+                            "strike_selection_criteria_trailing_options": leg_value["strike_selection_criteria_trailing_options"],
+                            "strike_selection_criteria_profit_reaches": leg_value["strike_selection_criteria_profit_reaches"],
+                            "strike_selection_criteria_lock_profit": leg_value["strike_selection_criteria_lock_profit"],
+                            "strike_selection_criteria_lock_profit_sign": leg_value["strike_selection_criteria_lock_profit_sign"],
+                            "strike_selection_criteria_increase_in_profit": leg_value["strike_selection_criteria_increase_in_profit"],
+                            "strike_selection_criteria_trail_profit": leg_value["strike_selection_criteria_trail_profit"],
+                            "strike_selection_criteria_trail_profit_sign": leg_value["strike_selection_criteria_trail_profit_sign"],
+                            "roll_strike": leg_value["roll_strike"],
+                            "roll_strike_strike_type": leg_value["roll_strike_strike_type"],
+                            "roll_strike_stop_loss": leg_value["roll_strike_stop_loss"],
+                            "roll_strike_stop_loss_sign": leg_value["roll_strike_stop_loss_sign"],
+                            "roll_strike_trailing_options": leg_value["roll_strike_trailing_options"],
+                            "roll_strike_profit_reaches": leg_value["roll_strike_profit_reaches"],
+                            "roll_strike_lock_profit": leg_value["roll_strike_lock_profit"],
+                            "roll_strike_lock_profit_sign": leg_value["roll_strike_lock_profit_sign"],
+                            "roll_strike_increase_in_profit": leg_value["roll_strike_increase_in_profit"],
+                            "roll_strike_trail_profit": leg_value["roll_strike_trail_profit"],
+                            "roll_strike_trail_profit_sign": leg_value["roll_strike_trail_profit_sign"],
+                            "simple_momentum_range_breakout": leg_value["simple_momentum_range_breakout"],
+                            "simple_momentum": leg_value["simple_momentum"],
+                            "simple_momentum_sign": leg_value["simple_momentum_sign"],
+                            "simple_momentum_direction": leg_value["simple_momentum_direction"],
+                            "range_breakout": leg_value["range_breakout"]
+                        }
+                        strategyvariables["legs"].append(legs)
+                    
+                    strategies["strategyvariables"] = strategyvariables
+                strategy["strategies"].append(strategies)
     
-    if value == 1:
-        return strategy
-    else:
-        return portfolios
+            portfolios.append(strategy)
+        
+        if value == 1:
+            return strategy
+        else:
+            return portfolios
 
 def insert_strategy(strategies,strategyvariables,legs,portfolio_id):
     mycursor = mydb.cursor()
@@ -686,40 +691,40 @@ class PortfolioRepo:
             )
 
             if connection.is_connected():
-                mycursor = connection.cursor()
+                mycursor = connection.cursor(dictionary=True)
                 
-            value=2
-            # Step 1: Fetch all unique strategy IDs
-            mycursor.execute("SELECT DISTINCT id FROM portfolio")
-            portfolio_ids = [row['id'] for row in mycursor.fetchall()]
-            
-            # List to store all strategy details
-            all_portfolios = []
-            
-            # Step 2: Iterate over each strategy_id and fetch details
-            for portfolio_id in portfolio_ids:
-                # Fetch strategy details
-                query = """
-                SELECT *
-                FROM portfolio
-                WHERE id = %s
-                """
-                mycursor.execute(query, (portfolio_id,))
-                result = mycursor.fetchall()
+                value=2
+                # Step 1: Fetch all unique strategy IDs
+                mycursor.execute("SELECT DISTINCT id FROM portfolio")
+                portfolio_ids = [row['id'] for row in mycursor.fetchall()]
                 
-                # Convert to JSON format
-                strategy_details = convert_to_json(result, portfolio_id,value)
-                # Append strategy details to all_strategies list
-                #return strategy_details
+                # List to store all strategy details
+                all_portfolios = []
                 
-                all_portfolios.extend(strategy_details)
-                #all_strategies.append(result)
-            
-            # Return all strategies as JSON data
-            transformed_data = {"portfolio": all_portfolios}
-            # Outputting the transformed data
-            #print(json.dumps(transformed_data, indent=2))
-            return all_portfolios
+                # Step 2: Iterate over each strategy_id and fetch details
+                for portfolio_id in portfolio_ids:
+                    # Fetch strategy details
+                    query = """
+                    SELECT *
+                    FROM portfolio
+                    WHERE id = %s
+                    """
+                    mycursor.execute(query, (portfolio_id,))
+                    result = mycursor.fetchall()
+                    
+                    # Convert to JSON format
+                    strategy_details = convert_to_json(result, portfolio_id,value)
+                    # Append strategy details to all_strategies list
+                    #return strategy_details
+                    
+                    all_portfolios.extend(strategy_details)
+                    #all_strategies.append(result)
+                
+                # Return all strategies as JSON data
+                transformed_data = {"portfolio": all_portfolios}
+                # Outputting the transformed data
+                #print(json.dumps(transformed_data, indent=2))
+                return all_portfolios
         
         except Exception as e:
             print(f"Error retrieving strategy details: {e}")
@@ -727,31 +732,36 @@ class PortfolioRepo:
    
 
     def getPortfolioDetails(self, strategy_id):
+        try:
         #print('3')
-        value=1
-        #mycursor = mydb.cursor(dictionary=True)
-
-        connection = mysql.connector.connect(
-           **DB_CONNECTION_PARAMS
-        )
-        if connection.is_connected():
-                mycursor = connection.cursor()
-
-        stategy_details = ""
-        query =  """
-        SELECT *
-        FROM portfolio
-        WHERE id = %s
-        """
-        mycursor.execute(query, (strategy_id,))
-        result = mycursor.fetchall()
-        #print('4')
-        stategy_details = convert_to_json(result,strategy_id,value)
-        #for row in result:
-         #   strategy_details.append(row)
-         
+            value=1
+            #mycursor = mydb.cursor(dictionary=True)
     
-        return stategy_details
+            connection = mysql.connector.connect(
+               **DB_CONNECTION_PARAMS
+            )
+        
+            if connection.is_connected():
+                mycursor = connection.cursor(dictionary=True)
+    
+                stategy_details = ""
+                query =  """
+                SELECT *
+                FROM portfolio
+                WHERE id = %s
+                """
+                mycursor.execute(query, (strategy_id,))
+                result = mycursor.fetchall()
+                #print('4')
+                stategy_details = convert_to_json(result,strategy_id,value)
+                #for row in result:
+                 #   strategy_details.append(row)
+                 
+            
+                return stategy_details
+        except Exception as e:
+            print(f"Error retrieving strategy details: {e}")
+            return {"error": str(e)}
 
 '''            
     def update_data(self, strategy_data, legs_data, strategyId):
