@@ -7,6 +7,14 @@ password="root",
 database="sagar_strategy"
 )
 
+DB_CONNECTION_PARAMS = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'root',
+    'db': 'sagar_strategy'    
+}
+
+
 def convert_to_json(result, portfolio_id, value):
     portfolios = []
     mycursor = mydb.cursor(dictionary=True)
@@ -672,7 +680,14 @@ class PortfolioRepo:
     
     def getAllPortfolio(self):
         try:
-            mycursor = mydb.cursor(dictionary=True)
+            #mycursor = mydb.cursor(dictionary=True)
+            connection = mysql.connector.connect(
+            **DB_CONNECTION_PARAMS
+            )
+
+            if connection.is_connected():
+                mycursor = connection.cursor()
+                
             value=2
             # Step 1: Fetch all unique strategy IDs
             mycursor.execute("SELECT DISTINCT id FROM portfolio")
@@ -714,7 +729,14 @@ class PortfolioRepo:
     def getPortfolioDetails(self, strategy_id):
         #print('3')
         value=1
-        mycursor = mydb.cursor(dictionary=True)
+        #mycursor = mydb.cursor(dictionary=True)
+
+        connection = mysql.connector.connect(
+           **DB_CONNECTION_PARAMS
+        )
+        if connection.is_connected():
+                mycursor = connection.cursor()
+
         stategy_details = ""
         query =  """
         SELECT *
