@@ -187,6 +187,27 @@ def get_portfolio_details(strategy_id):
     
     return jsonify(strategy_details), 200
 
+#Update existing strategy variables
+@app.route('/strategyvariables/<int:statVarId>', methods=['PUT'])
+def update_strategyvariables(statVarId):
+    try:
+        data = []
+        data = request.get_json()
+        #print("Received JSON data:", data)
+        #print(strategyId)
+        # Example processing (you might want to pass this data to Strategyservice)
+        strategy = Portfolioservice(data)
+        strategy.var_update(data,statVarId)
+        
+        response = {
+            "status": "success",
+            "received_data": data
+        }
+        return jsonify(data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 try:
     if __name__ == '__main__':
         app.run()

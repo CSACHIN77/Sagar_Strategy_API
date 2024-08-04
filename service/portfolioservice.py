@@ -28,8 +28,9 @@ def refactor_strategy(data,port_Id):
     print(my_list)
     repo.deletestrategies(my_list,port_Id)
     
+         
     
-      
+    
 class Portfolioservice:
     def __init__(self,data):
         self.data = data
@@ -177,113 +178,16 @@ class Portfolioservice:
             legs_data = variables['legs']   
             repo.portfolio_strategy_variable_leg_insert_update(legs_data,portfolio_strategy_variable_id)
             
+    def var_update(self, data,statVarId):
         
-        # Iterate over each strategy in the data
-        '''
-        for strategy_data in data['strategies']: 
-            #print(6)
-            # Create Strategy object
-            strategy = Strategy(
-                id=strategy_data.get('id'),
-                portfolio_id=portfolio.id,
-                strategy_id=strategy_data.get('strategy_id',0),
-                symbol=strategy_data.get('symbol',''),
-                quantity_multiplier=strategy_data.get('quantity_multiplier',0),
-                monday=strategy_data.get('monday',False),
-                tuesday=strategy_data.get('tuesday',False),
-                wednesday=strategy_data.get('wednesday',False),
-                thrusday=strategy_data.get('thrusday',False),
-                friday=strategy_data.get('friday',False)
-                # Add other attributes as per your Strategy model
-            )
-            strategies.append(strategy)
-            
-            # Extract strategy variables
-            strategy_variables_entry = strategy_data['strategyvariables']
-                #(strategy_variables_entries)
-            #print(5)
-            variables = Variables(
-                        id=strategy_variables_entry.get('id'),
-                        portfolio_strategy_id=strategy.id,
-                        underlying=strategy_variables_entry.get('underlying', ''),
-                        strategy_type=strategy_variables_entry.get('strategy_type',''),
-                        quantity_multiplier = strategy_variables_entry.get('quantity_multiplier', ''),
-                        implied_futures_expiry=strategy_variables_entry.get('implied_futures_expiry',''),
-                        entry_time=strategy_variables_entry.get('entry_time',''),
-                        last_entry_time=strategy_variables_entry.get('last_entry_time',''),
-                        exit_time=strategy_variables_entry.get('exit_time',''),
-                        square_off=strategy_variables_entry.get('square_off',''),
-                        overall_sl=strategy_variables_entry.get('overall_sl',0),
-                        overall_target=strategy_variables_entry.get('overall_target',0),
-                        trailing_options=strategy_variables_entry.get('trailing_options',''),
-                        profit_reaches=strategy_variables_entry.get('profit_reaches',0),
-                        lock_profit=strategy_variables_entry.get('lock_profit',0),
-                        increase_in_profit=strategy_variables_entry.get('increase_in_profit',0),
-                        trail_profit=strategy_variables_entry.get('trail_profit',0)
-                        # Add other attributes as per your Variables model
-                        
-                    )
-            #print(8)
-            strategy_variables.append(variables)
-                
-                # Extract legs
-            #print(strategy_variables_entry['legs'])
-            strategy_legs = strategy_variables_entry['legs']
-            for leg_entry in strategy_legs:
-                leg = Leg(
-                                id=leg_entry['id'],
-                                portfolio_strategy_variables_id=variables.id,
-                                lots=leg_entry['lots'],
-                                position=leg_entry['position'],
-                                option_type=leg_entry['option_type'],
-                                expiry=leg_entry['expiry'],
-                                no_of_reentry=leg_entry['no_of_reentry'],
-                                strike_selection_criteria=leg_entry.get('strike_selection_criteria'),
-                                closest_premium=leg_entry.get('closest_premium'),
-                                strike_type=leg_entry.get('strike_type'),
-                                straddle_width_value=leg_entry.get('straddle_width_value'),
-                                straddle_width_sign=leg_entry.get('straddle_width_sign'),
-                                percent_of_atm_strike_value=leg_entry.get('percent_of_atm_strike_value'),
-                                percent_of_atm_strike_sign=leg_entry.get('percent_of_atm_strike_sign'),
-                                atm_straddle_premium=leg_entry.get('atm_straddle_premium'),
-                                strike_selection_criteria_stop_loss=leg_entry.get('strike_selection_criteria_stop_loss'),
-                                strike_selection_criteria_stop_loss_sign=leg_entry.get('strike_selection_criteria_stop_loss_sign'),
-                                strike_selection_criteria_trailing_options=leg_entry.get('strike_selection_criteria_trailing_options'),
-                                strike_selection_criteria_profit_reaches=leg_entry.get('strike_selection_criteria_profit_reaches'),
-                                strike_selection_criteria_lock_profit=leg_entry.get('strike_selection_criteria_lock_profit'),
-                                strike_selection_criteria_lock_profit_sign=leg_entry.get('strike_selection_criteria_lock_profit_sign'),
-                                strike_selection_criteria_increase_in_profit=leg_entry.get('strike_selection_criteria_increase_in_profit'),
-                                strike_selection_criteria_trail_profit=leg_entry.get('strike_selection_criteria_trail_profit'),
-                                strike_selection_criteria_trail_profit_sign=leg_entry.get('strike_selection_criteria_trail_profit_sign'),
-                                roll_strike=leg_entry.get('roll_strike'),
-                                roll_strike_strike_type=leg_entry.get('roll_strike_strike_type'),
-                                roll_strike_stop_loss=leg_entry.get('roll_strike_stop_loss'),
-                                roll_strike_stop_loss_sign=leg_entry.get('roll_strike_stop_loss_sign'),
-                                roll_strike_trailing_options=leg_entry.get('roll_strike_trailing_options'),
-                                roll_strike_profit_reaches=leg_entry.get('roll_strike_profit_reaches'),
-                                roll_strike_lock_profit=leg_entry.get('roll_strike_lock_profit'),
-                                roll_strike_lock_profit_sign=leg_entry.get('roll_strike_lock_profit_sign'),
-                                roll_strike_increase_in_profit=leg_entry.get('roll_strike_increase_in_profit'),
-                                roll_strike_trail_profit=leg_entry.get('roll_strike_trail_profit'),
-                                roll_strike_trail_profit_sign=leg_entry.get('roll_strike_trail_profit_sign'),
-                                simple_momentum_range_breakout=leg_entry.get('simple_momentum_range_breakout'),
-                                simple_momentum=leg_entry.get('simple_momentum'),
-                                simple_momentum_sign=leg_entry.get('simple_momentum_sign'),
-                                simple_momentum_direction=leg_entry.get('simple_momentum_direction'),
-                                range_breakout=leg_entry.get('range_breakout')
-                                # Add other attributes as per your Leg model
-                            )
-                legs.append(leg)
-      
-   
-
-            # Assuming PortfolioRepo is responsible for data insertion
-            repo = PortfolioRepo()
-            repo.update_data(portfolio, strategies, strategy_variables, legs,strategyId)
-            strategies = []
-            strategy_variables = []
-            legs = []
-            '''
+        repo = PortfolioRepo()
+       # print(1)
+        repo.update_variables(data,statVarId)
+        #print(3)
+        legs_data = data['legs']  
+        #repo.refactor_legs(legs_data,statVarId)
+        repo.portfolio_strategy_variable_leg_insert_update(legs_data,statVarId)
+        
     def getAllPortfolioDetails(self):
         repo = PortfolioRepo()
         strategy_name = repo.getAllPortfolio()

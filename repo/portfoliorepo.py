@@ -536,6 +536,66 @@ class PortfolioRepo:
             print("Portfolio Strategy Variable ID:", last_id)
         return last_id
         
+    def update_variables(self,variable, statVarId):
+        mycursor = mydb.cursor()
+        
+        if statVarId:
+            #print(2)
+            query = """
+            UPDATE portfoliostrategyvariables SET underlying = %s, strategy_type = %s, quantity_multiplier = %s, implied_futures_expiry = %s, entry_time = %s, last_entry_time = %s, exit_time = %s,
+            square_off = %s, overall_sl = %s, overall_target = %s, trailing_options = %s, profit_reaches = %s, increase_in_profit = %s, trail_profit = %s
+            WHERE id = %s
+            """
+            values = (
+               variable.get('underlying'),
+               variable.get('strategy_type'),
+               variable.get('quantity_multiplier'),
+               variable.get('implied_futures_expiry'),
+               variable.get('entry_time'),
+               variable.get('last_entry_time'),
+               variable.get('exit_time'),
+               variable.get('square_off'),
+               variable.get('overall_sl'),
+               variable.get('overall_target'),
+               variable.get('trailing_options'),
+               variable.get('profit_reaches'),
+               variable.get('increase_in_profit'),
+               variable.get('trail_profit'),
+               statVarId
+            )
+            mycursor.execute(query, values)
+            mydb.commit()
+            #print(4)
+            print("Update successful in portfoliostrategyvariables table!")
+
+    def refactor_legs(self,legs_data,statVarId):
+        mycursor = mydb.cursor()
+        leg_ids =[]
+        query = "SELECT id from portfoliostrategyvariableslegs where portfolio_strategy_variables_id = %s"
+        mycursor.execute(query, (statVarId,))
+        result = mycursor.fetchall()
+        #print(result)
+        current_values = {row[0] for row in result}
+        print(current_values)
+        api_values = {entry.get('id') for entry in legs_data}
+        print("API values:", api_values)
+        
+        count_current = len(current_values)
+        count_api = len(api_values)
+        print("Count of current values:", count_current)
+        print("Count of API values:", count_api)
+        if count_current > count_api:
+            # Find the excess values to delete
+            values_to_delete_count = count_current - count_api
+            values_to_delete = list(current_values)[:values_to_delete_count]
+            print("Values to delete:", values_to_delete)
+        if values_to_delete:
+            placeholders = ', '.join(['%s'] * len(values_to_delete))
+            query = f"DELETE FROM portfoliostrategyvariableslegs WHERE id IN ({placeholders})"
+            mycursor.execute(query, tuple(values_to_delete))
+            mydb.commit()
+            print("Delete successful in portfoliostrategyvariableslegs table!")
+            
     
     def portfolio_strategy_variable_leg_insert_update(self,leg_values,portfolio_strategy_variable_id):
         mycursor = mydb.cursor()
@@ -543,16 +603,16 @@ class PortfolioRepo:
         query = "SELECT id from portfoliostrategyvariableslegs where portfolio_strategy_variables_id = %s"
         mycursor.execute(query, (portfolio_strategy_variable_id,))
         result = mycursor.fetchall()
-        print(result)
+        #print(result)
         mydb.commit()
         for value in result:
             leg_ids.append(value[0])
         
-        print(leg_ids)
+        #print(leg_ids)
         for leg_value in leg_values:
             if len(leg_ids) != 0:
                 last_id = leg_ids[0]
-                print(last_id)
+                #print(last_id)
                 leg_ids = update_legs(leg_value,last_id,leg_ids,portfolio_strategy_variable_id)
                 print("Updated legs from db ")
                 print(leg_ids)
@@ -623,8 +683,16 @@ class PortfolioRepo:
                 print("Insertion successful into portfoliostrategyvariableslegs table!")
                 last_id = mycursor.lastrowid  # Get the inserted portfolio_strategy_id
                 print("Portfolio Strategy variable leg ID:", last_id)
+                
+        #Delete the legs which are not in the update legs       
+        #print("Remaining legids" ,leg_ids)
+        #placeholders = ', '.join(['%s'] * len(leg_ids))
+        #query = f"DELETE FROM portfoliostrategyvariableslegs WHERE id IN ({placeholders})"
+        #mycursor.execute(query, tuple(leg_ids))
+        #mydb.commit()
+        #print("Delete successful in portfoliostrategyvariableslegs table!")
             
-
+    
         
     def deletestrategies(self,my_list,portId):
         mycursor = mydb.cursor()
