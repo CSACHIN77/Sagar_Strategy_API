@@ -198,6 +198,7 @@ def update_strategyvariables(statVarId):
         # Example processing (you might want to pass this data to Strategyservice)
         strategy = Portfolioservice(data)
         strategy.var_update(data,statVarId)
+        #newdata = strategy.var_update(data,statVarId)
         
         response = {
             "status": "success",

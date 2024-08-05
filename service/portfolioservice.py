@@ -28,7 +28,26 @@ def refactor_strategy(data,port_Id):
     print(my_list)
     repo.deletestrategies(my_list,port_Id)
     
-         
+def refactor_legs(data,statvarId):
+    leg_id = []
+    for value in data:
+        legs = value.get('id',0)
+        leg_id.append(legs)
+    leg_id_list = [int(item) for item in leg_id]
+    repo = PortfolioRepo()
+    table_ids = repo.get_Leg_ids(statvarId)
+    
+    SET_TABLE = set(table_ids)
+    SET_JSON = set(leg_id_list)
+    
+    #print(SET_TABLE)
+    #print(SET_JSON)
+    diff = SET_TABLE - SET_JSON
+    #print(diff)
+    my_list = list(diff)
+
+    print(my_list)
+    repo.deleteLegs(my_list,statvarId)
     
     
 class Portfolioservice:
@@ -185,8 +204,10 @@ class Portfolioservice:
         repo.update_variables(data,statVarId)
         #print(3)
         legs_data = data['legs']  
-        #repo.refactor_legs(legs_data,statVarId)
+        refactor_legs(legs_data,statVarId)
         repo.portfolio_strategy_variable_leg_insert_update(legs_data,statVarId)
+        #newdata = repo.getstrategyvariables(statVarId)
+        #return 
         
     def getAllPortfolioDetails(self):
         repo = PortfolioRepo()

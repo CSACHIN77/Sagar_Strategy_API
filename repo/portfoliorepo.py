@@ -15,6 +15,103 @@ DB_CONNECTION_PARAMS = {
 }
 
 
+def convert_legs_to_json(result,statVarId):
+    variables = []
+    connection = mysql.connector.connect(
+      **DB_CONNECTION_PARAMS
+      )
+
+    if connection.is_connected():
+        mycursor = connection.cursor(dictionary=True)
+        
+        for var in result:
+            strategyvariables = {
+                "id": statVarId,
+                "portfolio_strategy_id": var["portfolio_strategy_id"],
+                "underlying": var["underlying"],
+                "strategy_type": var["strategy_type"],
+                "quantity_multiplier": var["quantity_multiplier"],
+                "implied_futures_expiry": var["implied_futures_expiry"],
+                "entry_time": var["entry_time"],
+                "last_entry_time": var["last_entry_time"],
+                "exit_time": var["exit_time"],
+                "square_off": var["square_off"],
+                "overall_sl": var["overall_sl"],
+                "overall_target": var["overall_target"],
+                "trailing_options": var["trailing_options"],
+                "profit_reaches": var["profit_reaches"],
+                "lock_profit": var["lock_profit"],
+                "increase_in_profit": var["increase_in_profit"],
+                "trail_profit": var["trail_profit"],
+                "legs": []
+            }
+            
+            leg_var_query = """SELECT id, portfolio_strategy_variables_id, lots, position, option_type, expiry, no_of_reentry,
+                                      strike_selection_criteria, closest_premium, strike_type, straddle_width_value, straddle_width_sign,
+                                      percent_of_atm_strike_value, percent_of_atm_strike_sign, atm_straddle_premium,
+                                      strike_selection_criteria_stop_loss, strike_selection_criteria_stop_loss_sign,
+                                      strike_selection_criteria_trailing_options, strike_selection_criteria_profit_reaches,
+                                      strike_selection_criteria_lock_profit, strike_selection_criteria_lock_profit_sign,
+                                      strike_selection_criteria_increase_in_profit, strike_selection_criteria_trail_profit,
+                                      strike_selection_criteria_trail_profit_sign, roll_strike, roll_strike_strike_type,
+                                      roll_strike_stop_loss, roll_strike_stop_loss_sign, roll_strike_trailing_options,
+                                      roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign,
+                                      roll_strike_increase_in_profit, roll_strike_trail_profit, roll_strike_trail_profit_sign,
+                                      simple_momentum_range_breakout, simple_momentum, simple_momentum_sign, simple_momentum_direction,
+                                      range_breakout 
+                               FROM portfoliostrategyvariableslegs 
+                               WHERE portfolio_strategy_variables_id = %s"""
+            mycursor.execute(leg_var_query, (statVarId,))
+            leg_values = mycursor.fetchall()
+            
+            for leg_value in leg_values:
+                legs = {
+                    "id": leg_value["id"],
+                    "portfolio_strategy_variables_id": leg_value["portfolio_strategy_variables_id"],
+                    "lots": leg_value["lots"],
+                    "position": leg_value["position"],
+                    "option_type": leg_value["option_type"],
+                    "expiry": leg_value["expiry"],
+                    "no_of_reentry": leg_value["no_of_reentry"],
+                    "strike_selection_criteria": leg_value["strike_selection_criteria"],
+                    "closest_premium": leg_value["closest_premium"],
+                    "strike_type": leg_value["strike_type"],
+                    "straddle_width_value": leg_value["straddle_width_value"],
+                    "straddle_width_sign": leg_value["straddle_width_sign"],
+                    "percent_of_atm_strike_value": leg_value["percent_of_atm_strike_value"],
+                    "percent_of_atm_strike_sign": leg_value["percent_of_atm_strike_sign"],
+                    "atm_straddle_premium": leg_value["atm_straddle_premium"],
+                    "strike_selection_criteria_stop_loss": leg_value["strike_selection_criteria_stop_loss"],
+                    "strike_selection_criteria_stop_loss_sign": leg_value["strike_selection_criteria_stop_loss_sign"],
+                    "strike_selection_criteria_trailing_options": leg_value["strike_selection_criteria_trailing_options"],
+                    "strike_selection_criteria_profit_reaches": leg_value["strike_selection_criteria_profit_reaches"],
+                    "strike_selection_criteria_lock_profit": leg_value["strike_selection_criteria_lock_profit"],
+                    "strike_selection_criteria_lock_profit_sign": leg_value["strike_selection_criteria_lock_profit_sign"],
+                    "strike_selection_criteria_increase_in_profit": leg_value["strike_selection_criteria_increase_in_profit"],
+                    "strike_selection_criteria_trail_profit": leg_value["strike_selection_criteria_trail_profit"],
+                    "strike_selection_criteria_trail_profit_sign": leg_value["strike_selection_criteria_trail_profit_sign"],
+                    "roll_strike": leg_value["roll_strike"],
+                    "roll_strike_strike_type": leg_value["roll_strike_strike_type"],
+                    "roll_strike_stop_loss": leg_value["roll_strike_stop_loss"],
+                    "roll_strike_stop_loss_sign": leg_value["roll_strike_stop_loss_sign"],
+                    "roll_strike_trailing_options": leg_value["roll_strike_trailing_options"],
+                    "roll_strike_profit_reaches": leg_value["roll_strike_profit_reaches"],
+                    "roll_strike_lock_profit": leg_value["roll_strike_lock_profit"],
+                    "roll_strike_lock_profit_sign": leg_value["roll_strike_lock_profit_sign"],
+                    "roll_strike_increase_in_profit": leg_value["roll_strike_increase_in_profit"],
+                    "roll_strike_trail_profit": leg_value["roll_strike_trail_profit"],
+                    "roll_strike_trail_profit_sign": leg_value["roll_strike_trail_profit_sign"],
+                    "simple_momentum_range_breakout": leg_value["simple_momentum_range_breakout"],
+                    "simple_momentum": leg_value["simple_momentum"],
+                    "simple_momentum_sign": leg_value["simple_momentum_sign"],
+                    "simple_momentum_direction": leg_value["simple_momentum_direction"],
+                    "range_breakout": leg_value["range_breakout"]
+                }
+                strategyvariables["legs"].append(legs)
+            
+            variables.append(strategyvariables)
+        return variables
+
 def convert_to_json(result, portfolio_id, value):
     portfolios = []
     connection = mysql.connector.connect(
@@ -568,33 +665,6 @@ class PortfolioRepo:
             #print(4)
             print("Update successful in portfoliostrategyvariables table!")
 
-    def refactor_legs(self,legs_data,statVarId):
-        mycursor = mydb.cursor()
-        leg_ids =[]
-        query = "SELECT id from portfoliostrategyvariableslegs where portfolio_strategy_variables_id = %s"
-        mycursor.execute(query, (statVarId,))
-        result = mycursor.fetchall()
-        #print(result)
-        current_values = {row[0] for row in result}
-        print(current_values)
-        api_values = {entry.get('id') for entry in legs_data}
-        print("API values:", api_values)
-        
-        count_current = len(current_values)
-        count_api = len(api_values)
-        print("Count of current values:", count_current)
-        print("Count of API values:", count_api)
-        if count_current > count_api:
-            # Find the excess values to delete
-            values_to_delete_count = count_current - count_api
-            values_to_delete = list(current_values)[:values_to_delete_count]
-            print("Values to delete:", values_to_delete)
-        if values_to_delete:
-            placeholders = ', '.join(['%s'] * len(values_to_delete))
-            query = f"DELETE FROM portfoliostrategyvariableslegs WHERE id IN ({placeholders})"
-            mycursor.execute(query, tuple(values_to_delete))
-            mydb.commit()
-            print("Delete successful in portfoliostrategyvariableslegs table!")
             
     
     def portfolio_strategy_variable_leg_insert_update(self,leg_values,portfolio_strategy_variable_id):
@@ -686,11 +756,12 @@ class PortfolioRepo:
                 
         #Delete the legs which are not in the update legs       
         #print("Remaining legids" ,leg_ids)
-        #placeholders = ', '.join(['%s'] * len(leg_ids))
-        #query = f"DELETE FROM portfoliostrategyvariableslegs WHERE id IN ({placeholders})"
-        #mycursor.execute(query, tuple(leg_ids))
-        #mydb.commit()
-        #print("Delete successful in portfoliostrategyvariableslegs table!")
+        #if leg_ids:
+            #placeholders = ', '.join(['%s'] * len(leg_ids))
+            #query = f"DELETE FROM portfoliostrategyvariableslegs WHERE id IN ({placeholders})"
+            #mycursor.execute(query, tuple(leg_ids))
+            #mydb.commit()
+            #print("Delete successful in portfoliostrategyvariableslegs table!")
             
     
         
@@ -701,7 +772,14 @@ class PortfolioRepo:
             mycursor.execute(query, (portId,value,))
             print("Data deeleted from portfoliostrategies where strategy id =" + str(value))
             mydb.commit()
-            
+    
+    def deleteLegs(self,my_list,portId):
+        mycursor = mydb.cursor()
+        for value in my_list:
+            query = "Delete from portfoliostrategyvariableslegs where portfolio_strategy_variables_id=%s and id=%s"
+            mycursor.execute(query, (portId,value,))
+            print("Data deeleted from portfoliostrategies where strategy id =" + str(value))
+            mydb.commit()
     
     def get_Strategy_ids(self,portId):
         mycursor = mydb.cursor() 
@@ -711,6 +789,16 @@ class PortfolioRepo:
         result = mycursor.fetchall()
         table_ids = [row[0] for row in result]
         return table_ids
+    
+    def get_Leg_ids(self,portId):
+        mycursor = mydb.cursor() 
+        json_id = []
+        query = "SELECT id from portfoliostrategyvariableslegs WHERE portfolio_strategy_variables_id=%s"
+        mycursor.execute(query, (portId,))
+        result = mycursor.fetchall()
+        table_ids = [row[0] for row in result]
+        return table_ids
+
 
     def insert_data(self,portfolio,strategies,strategyvariables,legs):
         mycursor = mydb.cursor()
@@ -831,62 +919,25 @@ class PortfolioRepo:
             print(f"Error retrieving strategy details: {e}")
             return {"error": str(e)}
 
-'''            
-    def update_data(self, strategy_data, legs_data, strategyId):
+    def getstrategyvariables(self,statVarId):
         try:
-            # Update portfolio Name
-            print(strategy_data.id)
-            
-            name_value = []
-            name_value.append(strategy_data.name)
-            mycursor = mydb.cursor()
-            #print(strategy_data.id)
-           # Update portfolio Name
-            query = """UPDATE portfolio SET Name = %s WHERE Id = %s"""
-            values = (strategy_data.name, strategyId)
-            mycursor.execute(query, values)
-            result = mycursor.fetchone()
-
-            print(f"Update successful for portfolio record with ID: {strategyId}")
-            #print(legs_data)
-            for strategy in legs_data:
-                strategy_id = strategy.strategy_id
-                symbol = strategy.symbol
-                quantity_multiplier = strategy.quantity_multiplier
-                monday = strategy.monday
-                tuesday = strategy.tuesday
-                wednesday = strategy.wednesday
-                thrusday = strategy.thrusday # Note: Corrected typo 'thrusday' to 'thrusday'
-                friday = strategy.friday
+            connection = mysql.connector.connect(
+               **DB_CONNECTION_PARAMS
+            )
+            if connection.is_connected():
+                mycursor = connection.cursor(dictionary=True)
     
-                # Check if the strategy record exists
-                check_strategy_query = "SELECT Id FROM portfoliostrategies WHERE portfolio_Id = %s AND strategy_id = %s"
-                check_strategy_values = (strategyId, strategy_id)
-                mycursor.execute(check_strategy_query, check_strategy_values)
-                #result = mycursor.fetchone()
-                mycursor.fetchall()
-                mydb.commit()
-                 
-                if mycursor.rowcount > 0:
-                    # Update the existing record
-                    update_strategy_query = """
-                        UPDATE portfoliostrategies
-                        SET symbol = %s, quantity_multiplier = %s, monday = %s, tuesday = %s,
-                            wednesday = %s, thrusday = %s, friday = %s
-                        WHERE portfolio_Id = %s AND strategy_id = %s
-                    """
-                    update_strategy_values = (
-                        symbol, quantity_multiplier, monday, tuesday, wednesday,
-                        thrusday, friday, strategyId, strategy_id
-                    )
-                    mycursor.execute(update_strategy_query, update_strategy_values)
-                    mydb.commit()
-                    print(f"Updated portfolio strategy for strategy_id: {strategy_id}")
-        # Close cursor
-            mycursor.close()
-
+                stategy_details = ""
+                query =  """
+                SELECT *
+                FROM portfoliostrategyvariables
+                WHERE id = %s
+                """
+                mycursor.execute(query, (statVarId,))
+                result = mycursor.fetchall()
+                #print('4')
+                variable_details = convert_legs_to_json(result,statVarId)
+                return variable_details
         except Exception as e:
-            print(f"Error updating portfolio data: {str(e)}")
-            mydb.rollback() 
-'''
-    
+            print(f"Error retrieving strategy details: {e}")
+            return {"error": str(e)}
