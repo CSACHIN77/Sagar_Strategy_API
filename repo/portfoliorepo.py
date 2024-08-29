@@ -4,14 +4,14 @@ mydb = mysql.connector.connect(
 host="localhost",
 user="root",
 password="root",
-database="sagar_strategy"
+database="backtest"
 )
 
 DB_CONNECTION_PARAMS = {
     'host': 'localhost',
     'user': 'root',
     'password': 'root',
-    'db': 'sagar_strategy'    
+    'db': 'backtest'    
 }
 
 
