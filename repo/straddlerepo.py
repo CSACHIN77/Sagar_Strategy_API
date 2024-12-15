@@ -1,11 +1,32 @@
 import mysql.connector
 import json
+import os
+import sys
 
+try:
+    current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the absolute path of the current script
+    sagar_common_path = os.path.join(current_dir, "../../Sagar_common")  # Go up two levels to "OGCODE"
+    if sagar_common_path not in sys.path:
+        sys.path.append(sagar_common_path)
+    from common_function import fetch_parameter
+except ImportError as e:
+    print(f"Error fetching db details: {e}")
+
+env = "dev"  # Environment, e.g., 'dev', 'prod'
+key = "db_sagar_strategy"  # Example key to fetch the database configuration
+db_Value = fetch_parameter(env, key)
+
+if db_Value is None:
+    raise HTTPException(status_code=500, detail="Failed to fetch database configuration.")
+
+print(f"Fetched db config: {db_Value}")
+
+# Use the fetched database configuration to connect to MySQL
 mydb = mysql.connector.connect(
-host="localhost",
-user="root",
-password="root",
-database="backtest"
+    host=db_Value['host'],
+    user=db_Value['user'],
+    password=db_Value['password'],
+    database=db_Value['database']
 )
 
 def convert_to_json(result,strategy_id,value):

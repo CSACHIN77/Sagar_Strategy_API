@@ -1,4 +1,7 @@
 import mysql.connector
+import json
+import os
+import sys
 
 mydb = mysql.connector.connect(
 host="localhost",
@@ -7,13 +10,36 @@ password="root",
 database="backtest"
 )
 
-DB_CONNECTION_PARAMS = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'root',
-    'db': 'backtest'    
-}
+try:
+    current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the absolute path of the current script
+    sagar_common_path = os.path.join(current_dir, "../../Sagar_common")  # Go up two levels to "OGCODE"
+    if sagar_common_path not in sys.path:
+        sys.path.append(sagar_common_path)
+    from common_function import fetch_parameter
+except ImportError as e:
+    print(f"Error fetching db details: {e}")
+    raise HTTPException(status_code=500, detail="Failed to import common_function")
 
+# Set environment and key to fetch DB configuration
+env = "dev"  # Example environment, e.g., 'dev', 'prod'
+key = "db_sagar_strategy"  # Example key to fetch DB configuration
+
+# Fetch the database configuration
+db_Value = fetch_parameter(env, key)
+
+# Handle case if the db_Value is None
+if db_Value is None:
+    raise HTTPException(status_code=500, detail="Failed to fetch database configuration.")
+else:
+    print(f"Fetched db config: {db_Value}")
+
+# Define DB_CONNECTION_PARAMS dynamically
+DB_CONNECTION_PARAMS = {
+    'host': db_Value.get('host', 'localhost'),
+    'user': db_Value.get('user', 'root'),
+    'password': db_Value.get('password', 'root'),
+    'db': db_Value.get('db', 'backtest')
+}
 
 def convert_legs_to_json(result,statVarId):
     variables = []
