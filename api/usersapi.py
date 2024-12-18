@@ -1,40 +1,35 @@
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
-from typing import List, Any, Optional,Dict, Union
+from typing import List, Any, Optional, Dict, Union
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import mysql.connector
 from mysql.connector import Error
 from datetime import datetime
-from typing import List
 import os
 import json
 import sys
 import pandas as pd
 import logging
 
+# Adjust system path to include the project root
+current_directory = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_directory, '..'))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# Correct imports
 try:
-    current_directory = os.path.dirname('usersapi.py')
-    # Construct the path to the parent directory
-    parent_directory = os.path.abspath(os.path.join(current_directory, '..'))
-    # Add the parent directory to the system path
-    sys.path.append(parent_directory)
-    from repo.usersdetails import UserService
+    from service.userservice import UserService
+    from repo.usersrepo import UsersRepo
 except ImportError as e:
-    print(f"Error importing Portfolioservice: {e}")
+    print(f"Error importing UserService: {e}")
 
 
-try:
-    current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the absolute path of the current script
-    sagar_common_path = os.path.join(current_dir, "../../Sagar_common")  # Go up two levels to "OGCODE"
-    if sagar_common_path not in sys.path:
-        sys.path.append(sagar_common_path)
-    from common_function import fetch_parameter
-except ImportError as e:
-    print(f"Errorfetching db details: {e}")
-
+# Initialize FastAPI app
 app = FastAPI()
 
+# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -43,46 +38,18 @@ app.add_middleware(
     allow_headers=["*"],  
 )
 
-
-#------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
 # USERS APIS
-#------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
 
-def connect_to_users_db() -> mysql.connector.connection.MySQLConnection:
-
-    try:
-        env = "dev"  # Environment, e.g., 'dev', 'prod'
-        key = "db_sagar_users"  # Example key
-        db_Value = fetch_parameter(env, key)
-        if db_Value is None:
-            raise HTTPException(status_code=500, detail="Failed to fetch database configuration.")
-        print(f"Fetched db config: {db_Value}")
-
-        conn = mysql.connector.connect(
-            host=db_Value['host'],
-            database=db_Value['database'],
-            user=db_Value['user'],
-            password=db_Value['password'],
-        )
-        if conn.is_connected():
-            print("Connected to database.")
-            return conn
-    except mysql.connector.Error as e:
-        raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
-
-#User Registration
+# User Registration
 @app.post("/registeruser", response_model=dict)
 async def registeruser(data: dict):
-    
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-
     try:
         print(type(data))
         user_service = UserService(data)
-        user_id = user_service.registerUser(conn,data)
+        print(1)
+        user_id = user_service.registerUser(data)
         data["id"] = user_id
         return data
     except Exception as e:
@@ -91,16 +58,10 @@ async def registeruser(data: dict):
 #Edit User Details
 @app.post("/edituser", response_model=dict)
 async def edituser(data: dict):
-    
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-
     try:
         print(type(data))
         user_service = UserService(data)
-        user_id = user_service.editUser(conn,data)
+        user_id = user_service.edituser(data)
         return user_id
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -108,16 +69,10 @@ async def edituser(data: dict):
 #Add UserBroker
 @app.post("/addUserBroker", response_model=dict)
 async def addUserBroker(data: dict):
-    
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-
     try:
         print(type(data))
         user_service = UserService(data)
-        value = user_service.addUserBroker(conn,data)
+        value = user_service.addUserBroker(data)
         data = {"id": value} | data
         return data
     except Exception as e:
@@ -126,16 +81,11 @@ async def addUserBroker(data: dict):
 #Edit User Broker
 @app.post("/editUserBroker", response_model=dict)
 async def editUserBroker(data: dict):
-    
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
 
     try:
         print(type(data))
         user_service = UserService(data)
-        user_id = user_service.editUserBroker(conn,data)
+        user_id = user_service.editUserBroker(data)
         return user_id
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -144,15 +94,10 @@ async def editUserBroker(data: dict):
 @app.post("/deleteUserBroker", response_model=dict)
 async def deleteUserBroker(data: dict):
     
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-
     try:
         print(type(data))
         user_service = UserService(data)
-        user_id = user_service.deleteUserBroker(conn,data)
+        user_id = user_service.deleteUserBroker(data)
         return user_id
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -160,17 +105,12 @@ async def deleteUserBroker(data: dict):
 #Add Broker
 @app.post("/addBroker", response_model=dict)
 async def addBroker(data: dict):
-    
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
 
     try:
         print(type(data))
-        print(data)
+        #print(data)
         user_service = UserService(data)
-        user_id = user_service.addBroker(conn,data)
+        user_id = user_service.addBroker(data)
         return user_id
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -178,16 +118,11 @@ async def addBroker(data: dict):
 #Edit Broker
 @app.post("/editBroker", response_model=dict)
 async def editBroker(data: dict):
-    
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
 
     try:
         print(type(data))
         user_service = UserService(data)
-        user_id = user_service.editBroker(conn,data)
+        user_id = user_service.editBroker(data)
         return user_id
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -196,15 +131,10 @@ async def editBroker(data: dict):
 @app.post("/deleteBroker", response_model=dict)
 async def deleteBroker(data: dict):
     
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-
     try:
         print(type(data))
         user_service = UserService(data)
-        user_id = user_service.deleteBroker(conn,data)
+        user_id = user_service.deleteBroker(data)
         return user_id
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -212,15 +142,11 @@ async def deleteBroker(data: dict):
 #GET ALL Brokers
 @app.get("/getAllBrokers", response_model=list)
 async def getAllBrokers():
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
 
     try:
         data = []
         user_service = UserService(data)
-        value = user_service.getAllBrokers(conn)
+        value = user_service.getAllBrokers(data)
         return value
 
     except Exception as e:
@@ -232,16 +158,11 @@ async def getAllBrokers():
 @app.post("/addBilling", response_model=dict)
 async def addBilling(data: dict):
     
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
-
     try:
         print(type(data))
         print(data)
         user_service = UserService(data)
-        user_id = user_service.addBilling(conn,data)
+        user_id = user_service.addBilling(data)
         data = {"id": user_id} | data
         return data
     except Exception as e:
@@ -250,17 +171,12 @@ async def addBilling(data: dict):
 #Add Modules
 @app.post("/addModules", response_model=dict)
 async def addModules(data: dict):
-    
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
 
     try:
         print(type(data))
         print(data)
         user_service = UserService(data)
-        user_id = user_service.addModules(conn,data)
+        user_id = user_service.addModules(data)
         return user_id
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -268,15 +184,11 @@ async def addModules(data: dict):
 #GET ALL MODULES
 @app.get("/getAllModules", response_model=list)
 async def getAllModules():
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
 
     try:
         data = []
         user_service = UserService(data)
-        value = user_service.getAllModules(conn)
+        value = user_service.getAllModules(data)
         return value
 
     except Exception as e:
@@ -288,15 +200,11 @@ async def getAllModules():
 #Add UserAccessModules
 @app.post("/addUserAccessModules", response_model=list)
 async def addUserAccessModules(data: List[dict]):  
-    conn = connect_to_users_db()
-
-    if conn is None:
-        raise HTTPException(status_code=500, detail="Database connection failed")
 
     try:
-        print(type(data))  # This will show that data is a List of dicts
+        print(type(data))  
         user_service = UserService(data)
-        value = user_service.addUserAccessModules(conn, data)  # Pass data as a list
+        value = user_service.addUserAccessModules(data)  
 
         # Check if the value returned is True (successful operation)
         return value

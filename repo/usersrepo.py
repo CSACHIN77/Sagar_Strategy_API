@@ -1,5 +1,40 @@
 import json
+import mysql.connector
 from mysql.connector import Error
+import os
+import sys
+
+
+try:
+    current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the absolute path of the current script
+    sagar_common_path = os.path.join(current_dir, "../../Sagar_common")  # Go up two levels to "OGCODE"
+    if sagar_common_path not in sys.path:
+        sys.path.append(sagar_common_path)
+    from common_function import fetch_parameter
+except ImportError as e:
+    print(f"Errorfetching db details: {e}")
+
+
+def connect_to_users_db() -> mysql.connector.connection.MySQLConnection:
+    try:
+        env = "dev"  # Environment, e.g., 'dev', 'prod'
+        key = "db_sagar_users"  # Example key
+        db_Value = fetch_parameter(env, key)
+        if db_Value is None:
+            raise HTTPException(status_code=500, detail="Failed to fetch database configuration.")
+        print(f"Fetched db config: {db_Value}")
+
+        conn = mysql.connector.connect(
+            host=db_Value['host'],
+            database=db_Value['database'],
+            user=db_Value['user'],
+            password=db_Value['password'],
+        )
+        if conn.is_connected():
+            print("Connected to database.")
+            return conn
+    except mysql.connector.Error as e:
+        raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
 
 def convert_boolean(value):
     if isinstance(value, bool):
@@ -11,11 +46,17 @@ def convert_boolean(value):
         return 0
     return value
 
-class UserService:
+
+
+class UsersRepo:
     def __init__(self,data):
         self.data = data
 
-    def registerUser(self,conn,data):
+    def registerUser(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         #print(data)
         mycursor = conn.cursor()
         query = """
@@ -51,7 +92,12 @@ class UserService:
             if conn.is_connected():
                 mycursor.close()
     
-    def editUser(self,conn,data):
+    def edituser(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+
         mycursor = conn.cursor()
         check_query = "SELECT * FROM user WHERE id = %s"
         mycursor.execute(check_query, (data['id'],))
@@ -108,8 +154,12 @@ class UserService:
         # Close the cursor
         mycursor.close()
 
-    def addUserBroker(self,conn,data):
+    def addUserBroker(self,data):
         #print(data)
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         mycursor = conn.cursor()
         query = """
         INSERT INTO UserBrokers (
@@ -137,7 +187,11 @@ class UserService:
             if conn.is_connected():
                 mycursor.close()
 
-    def editUserBroker(self,conn,data):
+    def editUserBroker(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         mycursor = conn.cursor()
         check_query = "SELECT * FROM UserBrokers WHERE id = %s AND user_id = %s AND broker_id = %s"
         values = (data['id'],data['user_id'], data['broker_id'])
@@ -176,7 +230,12 @@ class UserService:
             # Close the cursor
             mycursor.close()
     
-    def deleteUserBroker(self,conn,data):
+    def deleteUserBroker(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+
         mycursor = conn.cursor()
         check_query = "SELECT * FROM UserBrokers WHERE id=%s AND user_id = %s AND broker_id = %s"
         values = (data['id'],data['user_id'], data['broker_id'])
@@ -196,7 +255,12 @@ class UserService:
             # Close the cursor
             mycursor.close()  
     
-    def getAllBrokers(self, conn):
+    def getAllBrokers(self):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+
         mycursor = conn.cursor()
         query = """SELECT id, name FROM Broker"""
         
@@ -220,7 +284,11 @@ class UserService:
             if conn.is_connected():
                 mycursor.close()
 
-    def addBroker(self,conn,data):
+    def addBroker(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         #print(data)
         mycursor = conn.cursor()
         query = """
@@ -251,7 +319,11 @@ class UserService:
             if conn.is_connected():
                 mycursor.close()
 
-    def editBroker(self,conn,data):
+    def editBroker(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         mycursor = conn.cursor()
         check_query = "SELECT * FROM broker WHERE id = %s"
         values = (data['id'],)
@@ -282,7 +354,11 @@ class UserService:
             # Close the cursor
             mycursor.close()
     
-    def deleteBroker(self,conn,data):
+    def deleteBroker(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         mycursor = conn.cursor()
         check_query = "SELECT * FROM broker WHERE id = %s"
         values = (data['id'],)
@@ -302,7 +378,11 @@ class UserService:
             # Close the cursor
             mycursor.close()  
 
-    def addBilling(self, conn, data):
+    def addBilling(self, data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
     # Create cursor to execute SQL queries
         mycursor = conn.cursor()
 
@@ -392,7 +472,11 @@ class UserService:
             if conn.is_connected():
                 mycursor.close()
 
-    def getAllModules(self, conn):
+    def getAllModules(self):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         mycursor = conn.cursor()
         query = """SELECT id, name FROM Modules"""
         
@@ -416,7 +500,11 @@ class UserService:
             if conn.is_connected():
                 mycursor.close()
 
-    def addModules(self,conn,data):
+    def addModules(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         #print(data)
         mycursor = conn.cursor()
         query = """
@@ -447,7 +535,11 @@ class UserService:
             if conn.is_connected():
                 mycursor.close()
 
-    def addUserAccessModules(self, conn, data):
+    def addUserAccessModules(self, data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
         mycursor = conn.cursor()
         
         query = """
