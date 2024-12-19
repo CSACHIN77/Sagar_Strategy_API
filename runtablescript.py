@@ -10,7 +10,7 @@ import os
 import json
 import pandas as pd
 import logging
-from constants import DB_CONFIG
+#from constants import DB_CONFIG
 
 def connect_to_db() -> mysql.connector.connection.MySQLConnection:  # Fixed function name
     try:
