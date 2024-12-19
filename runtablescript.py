@@ -28,6 +28,7 @@ def connect_to_db() -> mysql.connector.connection.MySQLConnection:  # Fixed func
 
 def create_database():
     try:
+        conn = ""
         conn = connect_to_db()
         cursor = conn.cursor()
         cursor.execute("CREATE DATABASE IF NOT EXISTS sagar_users;")
