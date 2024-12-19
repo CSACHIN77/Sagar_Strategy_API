@@ -28,15 +28,11 @@ def connect_to_db() -> mysql.connector.connection.MySQLConnection:  # Fixed func
 
 def create_database():
     try:
-        conn = mysql.connector.connect(
-            host=DB_CONFIG['host'],
-            user=DB_CONFIG['user'],
-            password=DB_CONFIG['password'],
-        )
+        conn = connect_to_db()
         cursor = conn.cursor()
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {DB_CONFIG['database']};")
-        print(f"Database '{DB_CONFIG['database']}' created successfully.")
-        cursor.execute(f"USE {DB_CONFIG['database']};")
+        cursor.execute("CREATE DATABASE IF NOT EXISTS sagar_users;")
+        print(f"Database sagar_users created successfully.")
+        cursor.execute("USE sagar_users;")
 
         #create user table
         create_table_query = """
