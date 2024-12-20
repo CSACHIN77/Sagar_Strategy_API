@@ -16,7 +16,11 @@ def connect_to_db() -> mysql.connector.connection.MySQLConnection:  # Fixed func
     try:
         conn = mysql.connector.connect(
             host='localhost',
+<<<<<<< HEAD
             #database='sagar_strategy',
+=======
+            #database='sagar_users',
+>>>>>>> bd9a5ce74d9afe7d838e6a6083b7d54ec743e10a
             user='root',
             password='root'
         )
@@ -32,7 +36,11 @@ def create_database():
         conn = connect_to_db()
         cursor = conn.cursor()
         cursor.execute("CREATE DATABASE IF NOT EXISTS sagar_strategy;")
+<<<<<<< HEAD
         print(f"Database sagar_strategy created successfully.")
+=======
+        print(f"Database sagar_users created successfully.")
+>>>>>>> bd9a5ce74d9afe7d838e6a6083b7d54ec743e10a
         cursor.execute("USE sagar_strategy;")
 
         #create user table
@@ -56,13 +64,15 @@ def create_database():
         );
         """
         cursor.execute(create_table_query)
+        conn.commit()
         print("Table 'User' created successfully (if it did not exist).")
+    
 
         # Create the Billing table with composite primary key
         create_billing_table_query = """
         CREATE TABLE IF NOT EXISTS Billing (
             id INT AUTO_INCREMENT,
-            user_id INT,
+            user_id INT NOT NULL,
             billing_type VARCHAR(50) NOT NULL,
             one_time_fee DECIMAL(10, 2) DEFAULT 0,
             subscription_type VARCHAR(50) DEFAULT NULL,
@@ -71,26 +81,31 @@ def create_database():
             profit_sharing_flat_profit_percent DECIMAL(10, 2),
             profit_sharing_flat_less_percent DECIMAL(10, 2),
             PRIMARY KEY (id, user_id),
+            UNIQUE(id),
             FOREIGN KEY (user_id) REFERENCES User(id)
         );
         """
         cursor.execute(create_billing_table_query)
+        conn.commit()
         print("Table 'Billing' created successfully (if it did not exist).")
+
+        
  
         # Create the ProfitSharingSlabs table with composite primary key
         create_profit_sharing_slabs_table_query = """
         CREATE TABLE IF NOT EXISTS ProfitSharingSlabs (
-            id INT AUTO_INCREMENT,
-            billing_id INT,
+            id INT AUTO_INCREMENT UNIQUE,
+            billing_id INT NOT NULL UNIQUE,
             `from` DECIMAL(10, 2) ,
             `to` DECIMAL(10, 2) ,
             profit_percent DECIMAL(10, 2) ,
             less_percent DECIMAL(10, 2) ,
-            PRIMARY KEY (id, billing_id),
-            FOREIGN KEY (billing_id) REFERENCES Billing(id)
+            FOREIGN KEY (billing_id) REFERENCES Billing(Id),
+            PRIMARY KEY (id, billing_id)
         );
         """
         cursor.execute(create_profit_sharing_slabs_table_query)
+        conn.commit()
         print("Table 'ProfitSharingSlabs' created successfully (if it did not exist).")
 
         create_modules_table_query = """
