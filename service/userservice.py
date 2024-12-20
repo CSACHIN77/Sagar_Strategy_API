@@ -57,6 +57,11 @@ class UserService:
         values = repo.deleteBroker(data)
         return values
     
+    def addBilling(self,data):
+        repo = UsersRepo(data)
+        values = repo.addBilling(data)
+        return values
+    
     def getAllBrokers(self,data):
         repo = UsersRepo(data)
         values = repo.getAllBrokers()

@@ -18,7 +18,7 @@ except ImportError as e:
 def connect_to_users_db() -> mysql.connector.connection.MySQLConnection:
     try:
         env = "dev"  # Environment, e.g., 'dev', 'prod'
-        key = "db_sagar_users"  # Example key
+        key = "db_sagar_strategy"  # Example key
         db_Value = fetch_parameter(env, key)
         if db_Value is None:
             raise HTTPException(status_code=500, detail="Failed to fetch database configuration.")
