@@ -582,3 +582,90 @@ class UsersRepo:
         finally:
             if conn.is_connected():
                 mycursor.close()
+    
+    def getAllUsers(self):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+        mycursor = conn.cursor()
+        query = """SELECT id, username, password, email, emailVerificationStatus, 
+                          first_name, middle_name, last_name, mobile, mobileVerificationStatus, 
+                          address, dateofbirth, risk_profile, last_login, is_active 
+                   FROM User"""
+        
+        try:
+            mycursor.execute(query)  # Execute the query without needing 'values'
+            
+            # Fetch all rows from the result set
+            result = mycursor.fetchall()
+            
+            # Format the result as a list of dictionaries
+            users = [{
+                "id": str(row[0]), 
+                "username": row[1], 
+                "password": row[2], 
+                "email": row[3], 
+                "emailVerificationStatus": row[4],
+                "first_name": row[5], 
+                "middle_name": row[6], 
+                "last_name": row[7], 
+                "mobile": row[8], 
+                "mobileVerificationStatus": row[9], 
+                "address": row[10], 
+                "dateofbirth": row[11], 
+                "risk_profile": row[12], 
+                "last_login": row[13], 
+                "is_active": row[14]
+            } for row in result]
+            
+            return users  # This return should be inside the method
+        
+        except Error as e:
+            error_message = f"Error: {e}"
+            print(error_message)
+            return {"error": error_message}
+        
+        finally:
+            if conn.is_connected():
+                mycursor.close()
+                conn.close()
+
+    def getAllUserBroker(self):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+        mycursor = conn.cursor()
+        query = """SELECT id,user_id, broker_id, API_Key, API_Secret, market_api_key, 
+                          market_api_secret
+                   FROM UserBrokers"""
+        
+        try:
+            mycursor.execute(query)  # Execute the query without needing 'values'
+            
+            # Fetch all rows from the result set
+            result = mycursor.fetchall()
+            
+            # Format the result as a list of dictionaries
+            users = [{
+                "id": str(row[0]), 
+                "user_id": row[1], 
+                "broker_id": row[2], 
+                "API_Key": row[3], 
+                "API_Secret": row[4],
+                "market_api_key": row[5], 
+                "market_api_secret": row[6]
+            } for row in result]
+            
+            return users  # This return should be inside the method
+        
+        except Error as e:
+            error_message = f"Error: {e}"
+            print(error_message)
+            return {"error": error_message}
+        
+        finally:
+            if conn.is_connected():
+                mycursor.close()
+                conn.close()

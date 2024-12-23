@@ -81,3 +81,13 @@ class UserService:
         repo = UsersRepo(data)
         values = repo.getAllModules()
         return values
+    
+    def getAllUsers(self,data):
+        repo = UsersRepo(data)
+        values = repo.getAllUsers()
+        return values
+    
+    def getAllUserBroker(self,data):
+        repo = UsersRepo(data)
+        values = repo.getAllUserBroker()
+        return values

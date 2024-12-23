@@ -213,6 +213,34 @@ async def addUserAccessModules(data: List[dict]):
         # Handle unexpected exceptions and provide error response
         raise HTTPException(status_code=500, detail=str(e))
 
+#GET ALL USERS
+@app.get("/getAllUsers", response_model=list)
+async def getAllUsers():
+
+    try:
+        data = []
+        user_service = UserService(data)
+        value = user_service.getAllUsers(data)
+        return value
+
+    except Exception as e:
+        # Handle unexpected exceptions and provide error response
+        raise HTTPException(status_code=500, detail=str(e))
+
+#GET ALL USERS
+@app.get("/getAllUserBroker", response_model=list)
+async def getAllUserBroker():
+
+    try:
+        data = []
+        user_service = UserService(data)
+        value = user_service.getAllUserBroker(data)
+        return value
+
+    except Exception as e:
+        # Handle unexpected exceptions and provide error response
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Main for running the FastAPI server
 if __name__ == "__main__":
     import uvicorn
