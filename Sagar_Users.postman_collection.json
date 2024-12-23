@@ -222,6 +222,24 @@
 				"url": "http://127.0.0.1:8080/getAllBrokers"
 			},
 			"response": []
+		},
+		{
+			"name": "GetAllUsers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8080/getAllUsers"
+			},
+			"response": []
+		},
+		{
+			"name": "GetAllUserBroker",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8080/getAllUserBroker"
+			},
+			"response": []
 		}
 	]
 }
