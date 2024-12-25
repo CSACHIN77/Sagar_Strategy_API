@@ -30,7 +30,7 @@ class Strategyservice:
             lock_profit=self.data['strategies'].get('lock_profit', 0),
             increase_in_profit=self.data['strategies'].get('increase_in_profit', 0),
             trail_profit=self.data['strategies'].get('trail_profit', 0),
-            createdBy=self.data['strategies'].get('createdBy', 0)
+            createdBy=self.data['strategies'].get('createdBy', 1)
         )
 
         legs = []
@@ -79,7 +79,7 @@ class Strategyservice:
                     simple_momentum_sign=leg_data.get('simple_momentum_sign', ''),
                     simple_momentum_direction=leg_data.get('simple_momentum_direction', ''),
                     range_breakout=leg_data.get('range_breakout', ''),
-                    createdBy=leg_data.get('createdBy', 0),
+                    createdBy=leg_data.get('createdBy', 1),
                 )
             #print(leg.position)
             legs.append(leg)
@@ -111,7 +111,7 @@ class Strategyservice:
             increase_in_profit=self.data['strategies'].get('increase_in_profit', 0),
             trail_profit=self.data['strategies'].get('trail_profit', 0),
             createdBy = self.data['strategies'].get('createdBy', 0),
-            modifiedBy = self.data['strategies'].get('modifiedBy', 0)
+            modifiedBy = self.data['strategies'].get('modifiedBy', 1)
         )
         
         legs = []
@@ -161,7 +161,7 @@ class Strategyservice:
                     simple_momentum_direction=leg_data.get('simple_momentum_direction', ''),
                     range_breakout=leg_data.get('range_breakout', ''),
                     createdBy = self.data['strategies'].get('createdBy', 0),
-                    modifiedBy = self.data['strategies'].get('modifiedBy', 0)
+                    modifiedBy = self.data['strategies'].get('modifiedBy', 1)
                 )
             #print(leg.position)
             legs.append(leg)

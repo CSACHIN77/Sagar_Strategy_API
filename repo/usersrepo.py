@@ -74,7 +74,7 @@ class UsersRepo:
         data.get('first_name', ''), data.get('middle_name', ''), data.get('last_name', ''),
         data.get('mobile', ''), convert_boolean(data.get('mobileVerificationStatus', False)),
         data.get('address', ''), data.get('dateofbirth', ''), data.get('risk_profile', ''),
-        data.get('last_login'), convert_boolean(data.get('is_active', True)),data.get('createdBy','')
+        data.get('last_login'), convert_boolean(data.get('is_active', True)),data.get('createdBy',1)
         )
 
         
@@ -142,7 +142,7 @@ class UsersRepo:
                 data['risk_profile'],
                 data['last_login'],
                 convert_boolean(data.get('is_active', True)),
-                data['modifiedBy'],
+                data.get('modifiedBy',1),
                 data['id']
             )
             
@@ -172,7 +172,7 @@ class UsersRepo:
         ) VALUES (%s, %s, %s, %s, %s, %s,%s)
         """
         values = (
-            data['user_id'], data['broker_id'], data['api_key'], data['api_secret'],data['market_api_key'],data['market_api_secret'],data['createdBy']
+            data['user_id'], data['broker_id'], data['api_key'], data['api_secret'],data['market_api_key'],data['market_api_secret'],data.get('createdBy',1)
         )
         
         try:
@@ -219,7 +219,7 @@ class UsersRepo:
                 data['api_secret'],
                 data['market_api_key'],
                 data['market_api_secret'],
-                data['modifiedBy'],
+                data.get('modifiedBy',1),
                 data['id'],
                 data['user_id'],
                 data['broker_id']
@@ -305,7 +305,7 @@ class UsersRepo:
         """
         values = (
             data['name'],
-            data['createdBy'],
+            data.get('createdBy',1)
         )
         
         try:
@@ -348,7 +348,7 @@ class UsersRepo:
             """
             values = (
                 data['name'],
-                data['modifiedBy'],
+                data.get('modifiedBy',1),
                 data['id']
             )
             
@@ -398,7 +398,7 @@ class UsersRepo:
 
         # Initialize the list of columns and values to be inserted
         columns = ["user_id", "billing_type", "createdBy"]
-        values = [data['user_id'], data['billing_type'], data.get('createdBy')]
+        values = [data['user_id'], data['billing_type'], data.get('createdBy',1)]
 
         # Add profit_sharing_type only if not already in the list (based on billing_type)
         if data['billing_type'] == 'profit sharing':
@@ -463,7 +463,7 @@ class UsersRepo:
                         slab['to'],
                         slab['profit_percent'],
                         slab['less_percent'],
-                        slab['createdBy']
+                        slab.get('createdBy',1)
                     )
                     mycursor.execute(slab_query, slab_values)
 
@@ -524,7 +524,7 @@ class UsersRepo:
         ) VALUES (%s,%s)
         """
         values = (
-            data['name'],data['createdBy'],
+            data['name'],data.get('createdBy',1),
         )
         
         try:
@@ -564,7 +564,7 @@ class UsersRepo:
         try:
             for entry in data:
                 # Insert data
-                values = (entry['user_id'], entry['module_id'], entry['enabled'],entry['createdBy'])
+                values = (entry['user_id'], entry['module_id'], entry['enabled'],entry.get('createdBy',1))
                 mycursor.execute(query, values)
                 
                 # After executing the insert, fetch the generated ID for the current row
@@ -576,7 +576,7 @@ class UsersRepo:
                     'user_id': entry['user_id'],
                     'module_id': entry['module_id'],
                     'enabled': entry['enabled'],
-                    'createdBy':entry['createdBy']
+                    'createdBy':entry.get('createdBy',1)
                 })
             
             # Commit the transaction after all inserts

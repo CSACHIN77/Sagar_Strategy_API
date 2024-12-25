@@ -81,8 +81,8 @@ class Portfolioservice:
                 wednesday=strategy_data.get('wednesday',False),
                 thrusday=strategy_data.get('thrusday',False),
                 friday=strategy_data.get('friday',False),
-                createdBy = strategy_data.get('createdBy',0),
-                modifiedBy=strategy_data.get('modifiedBy',0)
+                createdBy = strategy_data.get('createdBy',1),
+                modifiedBy=strategy_data.get('modifiedBy',1)
                 # Add other attributes as per your Strategy model
             )
             strategies.append(strategy)
@@ -109,8 +109,8 @@ class Portfolioservice:
                         lock_profit=strategy_variables_entry.get('lock_profit',0),
                         increase_in_profit=strategy_variables_entry.get('increase_in_profit',0),
                         trail_profit=strategy_variables_entry.get('trail_profit',0),
-                        createdBy=strategy_variables_entry.get('createdBy',0),
-                        modifiedBy=strategy_variables_entry.get('modifiedBy',0)
+                        createdBy=strategy_variables_entry.get('createdBy',1),
+                        modifiedBy=strategy_variables_entry.get('modifiedBy',1)
                         # Add other attributes as per your Variables model
                         
                     )
@@ -162,8 +162,8 @@ class Portfolioservice:
                                 simple_momentum_sign=leg_entry.get('simple_momentum_sign'),
                                 simple_momentum_direction=leg_entry.get('simple_momentum_direction'),
                                 range_breakout=leg_entry.get('range_breakout'),
-                                createdBy = leg_entry.get('createdBy'),
-                                modifiedBy=leg_entry.get('modifiedBy',0)
+                                createdBy = leg_entry.get('createdBy',1),
+                                modifiedBy=leg_entry.get('modifiedBy',1)
                                 # Add other attributes as per your Leg model
                             )
                 legs.append(leg)

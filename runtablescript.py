@@ -155,13 +155,13 @@ def create_database():
         print("Table 'UserBrokers' created successfully (if it did not exist).")
 
         
-        '''
+        
         #ALTER STRATEGY TABLE
         alter_strategy_query = """
         ALTER TABLE strategy
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -171,21 +171,21 @@ def create_database():
         #ALTER LEG TABLE
         alter_leg_query = """
         ALTER TABLE leg
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
         cursor.execute(alter_leg_query)
         print("Table 'leg' updated successfully.")
-        '''
+        
         #ALTER Portfolio table
         alter_leg_query = """
         ALTER TABLE portfolio
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -195,9 +195,9 @@ def create_database():
         #ALTER PortfolioStrategies table
         alter_leg_query = """
         ALTER TABLE portfoliostrategies
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -207,9 +207,9 @@ def create_database():
         #ALTER PortfolioStrategyVariables table
         alter_leg_query = """
         ALTER TABLE portfoliostrategyvariables
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -219,9 +219,9 @@ def create_database():
         #ALTER PortfolioStrategyVariablesLegs table
         alter_leg_query = """
         ALTER TABLE portfoliostrategyvariableslegs
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -231,9 +231,9 @@ def create_database():
         #ALTER TABLE User
         alter_strategy_query = """
         ALTER TABLE User
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -243,9 +243,9 @@ def create_database():
         #ALTER TABLE Billing
         alter_strategy_query = """
         ALTER TABLE Billing
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -255,9 +255,9 @@ def create_database():
         #ALTER TABLE ProfitSharingSlabs
         alter_strategy_query = """
         ALTER TABLE ProfitSharingSlabs
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -267,9 +267,9 @@ def create_database():
         #ALTER TABLE Modules
         alter_strategy_query = """
         ALTER TABLE Modules
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -279,9 +279,9 @@ def create_database():
         #ALTER TABLE UserAccessModules
         alter_strategy_query = """
         ALTER TABLE UserAccessModules
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -291,9 +291,9 @@ def create_database():
         #ALTER TABLE Broker
         alter_strategy_query = """
         ALTER TABLE Broker
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
@@ -303,9 +303,9 @@ def create_database():
         #ALTER TABLE UserBrokers
         alter_strategy_query = """
         ALTER TABLE UserBrokers
-        ADD COLUMN createdBy INT,
+        ADD COLUMN createdBy INT DEFAULT 1,
         ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-        ADD COLUMN modifiedBy INT,
+        ADD COLUMN modifiedBy INT DEFAULT 1,
         ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
         """
         # Execute the query
