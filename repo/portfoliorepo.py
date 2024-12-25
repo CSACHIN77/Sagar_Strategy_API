@@ -3,12 +3,6 @@ import json
 import os
 import sys
 
-mydb = mysql.connector.connect(
-host="localhost",
-user="root",
-password="root",
-database="backtest"
-)
 
 try:
     current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the absolute path of the current script
@@ -35,11 +29,18 @@ else:
 
 # Define DB_CONNECTION_PARAMS dynamically
 DB_CONNECTION_PARAMS = {
-    'host': db_Value.get('host', 'localhost'),
-    'user': db_Value.get('user', 'root'),
-    'password': db_Value.get('password', 'root'),
-    'db': db_Value.get('db', 'backtest')
+    'host': db_Value['host'],
+    'user': db_Value['user'],
+    'password': db_Value['password'],
+    'db': db_Value['database']
 }
+
+mydb = mysql.connector.connect(
+    host=db_Value['host'],
+    user=db_Value['user'],
+    password=db_Value['password'],
+    database=db_Value['database']
+)
 
 def convert_legs_to_json(result,statVarId):
     variables = []
@@ -151,10 +152,14 @@ def convert_to_json(result, portfolio_id, value):
             strategy = {
                 "id": row["id"],
                 "name": row["name"],
+                "createdBy": row["createdBy"],
+                "createdDate": row["createdDate"],
+                "modifiedBy": row["modifiedBy"],
+                "lastUpdatedDateTime": row["lastUpdatedDateTime"],
                 "strategies": []
             }
             
-            leg_sql = """SELECT id, portfolio_Id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday 
+            leg_sql = """SELECT id, portfolio_Id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday,createdBy,createdDate,modifiedBy,lastUpdatedDateTime
                          FROM portfoliostrategies 
                          WHERE portfolio_Id = %s"""
             mycursor.execute(leg_sql, (portfolio_id,))
@@ -172,12 +177,16 @@ def convert_to_json(result, portfolio_id, value):
                     "wednesday": bool(leg_row["wednesday"]),
                     "thrusday": bool(leg_row["thrusday"]),
                     "friday": bool(leg_row["friday"]),
+                    "createdBy": leg_row["createdBy"],
+                    "createdDate": leg_row["createdDate"],
+                    "modifiedBy": leg_row["modifiedBy"],
+                    "lastUpdatedDateTime": leg_row["lastUpdatedDateTime"],
                     "strategyvariables": {}
                 }
                 
                 var_query = """SELECT id, portfolio_strategy_id, underlying, strategy_type, quantity_multiplier, implied_futures_expiry,
                                       entry_time, last_entry_time, exit_time, square_off, overall_sl, overall_target, trailing_options,
-                                      profit_reaches, lock_profit, increase_in_profit, trail_profit 
+                                      profit_reaches, lock_profit, increase_in_profit, trail_profit ,createdBy,createdDate,modifiedBy,lastUpdatedDateTime
                                FROM portfoliostrategyvariables 
                                WHERE portfolio_strategy_id = %s"""
                 mycursor.execute(var_query, (leg_row["id"],))
@@ -202,6 +211,10 @@ def convert_to_json(result, portfolio_id, value):
                         "lock_profit": var["lock_profit"],
                         "increase_in_profit": var["increase_in_profit"],
                         "trail_profit": var["trail_profit"],
+                        "createdBy": var["createdBy"],
+                        "createdDate": var["createdDate"],
+                        "modifiedBy": var["modifiedBy"],
+                        "lastUpdatedDateTime": var["lastUpdatedDateTime"],
                         "legs": []
                     }
                     
@@ -217,7 +230,7 @@ def convert_to_json(result, portfolio_id, value):
                                               roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign,
                                               roll_strike_increase_in_profit, roll_strike_trail_profit, roll_strike_trail_profit_sign,
                                               simple_momentum_range_breakout, simple_momentum, simple_momentum_sign, simple_momentum_direction,
-                                              range_breakout 
+                                              range_breakout ,createdBy,createdDate,modifiedBy,lastUpdatedDateTime
                                        FROM portfoliostrategyvariableslegs 
                                        WHERE portfolio_strategy_variables_id = %s"""
                     mycursor.execute(leg_var_query, (var["id"],))
@@ -264,7 +277,11 @@ def convert_to_json(result, portfolio_id, value):
                             "simple_momentum": leg_value["simple_momentum"],
                             "simple_momentum_sign": leg_value["simple_momentum_sign"],
                             "simple_momentum_direction": leg_value["simple_momentum_direction"],
-                            "range_breakout": leg_value["range_breakout"]
+                            "range_breakout": leg_value["range_breakout"],
+                            "createdBy": leg_value["createdBy"],
+                            "createdDate": leg_value["createdDate"],
+                            "modifiedBy": leg_value["modifiedBy"],
+                            "lastUpdatedDateTime": leg_value["lastUpdatedDateTime"]
                         }
                         strategyvariables["legs"].append(legs)
                     
@@ -283,8 +300,8 @@ def insert_strategy(strategies,strategyvariables,legs,portfolio_id):
     
     for strategy in strategies:
         query = """
-            INSERT INTO portfoliostrategies (portfolio_id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO portfoliostrategies (portfolio_id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday, createdBy)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         values = (
             portfolio_id,
@@ -295,7 +312,9 @@ def insert_strategy(strategies,strategyvariables,legs,portfolio_id):
             strategy.tuesday,
             strategy.wednesday,
             strategy.thrusday,  # corrected spelling of 'thursday'
-            strategy.friday
+            strategy.friday,
+            strategy.createdBy,
+
         )
         try:
             mycursor.execute(query, values)
@@ -308,8 +327,8 @@ def insert_strategy(strategies,strategyvariables,legs,portfolio_id):
                         INSERT INTO portfoliostrategyvariables (
                             portfolio_strategy_id, underlying, strategy_type, quantity_multiplier, implied_futures_expiry,
                             entry_time, last_entry_time, exit_time, square_off, overall_sl, overall_target, trailing_options,
-                            profit_reaches, lock_profit, increase_in_profit, trail_profit
-                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            profit_reaches, lock_profit, increase_in_profit, trail_profit,createdBy
+                        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """
                 values = (
                         strategy_id,  # Use the strategy_id as portfolio_strategy_id
@@ -327,7 +346,8 @@ def insert_strategy(strategies,strategyvariables,legs,portfolio_id):
                         variable.profit_reaches,
                         variable.lock_profit,
                         variable.increase_in_profit,
-                        variable.trail_profit
+                        variable.trail_profit,
+                        variable.createdBy
                     )
                 try:
                     mycursor.execute(query, values)
@@ -336,71 +356,84 @@ def insert_strategy(strategies,strategyvariables,legs,portfolio_id):
                     portfolio_strategy_id = mycursor.lastrowid  # Get the inserted portfolio_strategy_id
                     print("Portfolio Strategy ID:", portfolio_strategy_id)
                     for leg_value in legs:
-                        #print("Inserting leg data:", leg_value)
-                        query = """
-                                    INSERT INTO portfoliostrategyvariableslegs (
-                                        portfolio_strategy_variables_id, lots, position, option_type, expiry, no_of_reentry,
-                                        strike_selection_criteria, closest_premium, strike_type, straddle_width_value, straddle_width_sign,
-                                        percent_of_atm_strike_value, percent_of_atm_strike_sign, atm_straddle_premium,
-                                        strike_selection_criteria_stop_loss, strike_selection_criteria_stop_loss_sign,
-                                        strike_selection_criteria_trailing_options, strike_selection_criteria_profit_reaches,
-                                        strike_selection_criteria_lock_profit, strike_selection_criteria_lock_profit_sign,
-                                        strike_selection_criteria_increase_in_profit, strike_selection_criteria_trail_profit,
-                                        strike_selection_criteria_trail_profit_sign, roll_strike, roll_strike_strike_type,
-                                        roll_strike_stop_loss, roll_strike_stop_loss_sign, roll_strike_trailing_options,
-                                        roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign,
-                                        roll_strike_increase_in_profit, roll_strike_trail_profit, roll_strike_trail_profit_sign,
-                                        simple_momentum_range_breakout, simple_momentum, simple_momentum_sign, simple_momentum_direction,
-                                        range_breakout
-                                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                                """
-                        values = (
-                                    portfolio_strategy_id,
-                                    leg_value.lots,
-                                    leg_value.position,
-                                    leg_value.option_type,
-                                    leg_value.expiry,
-                                    leg_value.no_of_reentry,
-                                    leg_value.strike_selection_criteria,
-                                    leg_value.closest_premium,
-                                    leg_value.strike_type,
-                                    leg_value.straddle_width_value,
-                                    leg_value.straddle_width_sign,
-                                    leg_value.percent_of_atm_strike_value,
-                                    leg_value.percent_of_atm_strike_sign,
-                                    leg_value.atm_straddle_premium,
-                                    leg_value.strike_selection_criteria_stop_loss,
-                                    leg_value.strike_selection_criteria_stop_loss_sign,
-                                    leg_value.strike_selection_criteria_trailing_options,
-                                    leg_value.strike_selection_criteria_profit_reaches,
-                                    leg_value.strike_selection_criteria_lock_profit,
-                                    leg_value.strike_selection_criteria_lock_profit_sign,
-                                    leg_value.strike_selection_criteria_increase_in_profit,
-                                    leg_value.strike_selection_criteria_trail_profit,
-                                    leg_value.strike_selection_criteria_trail_profit_sign,
-                                    leg_value.roll_strike,
-                                    leg_value.roll_strike_strike_type,
-                                    leg_value.roll_strike_stop_loss,
-                                    leg_value.roll_strike_stop_loss_sign,
-                                    leg_value.roll_strike_trailing_options,
-                                    leg_value.roll_strike_profit_reaches,
-                                    leg_value.roll_strike_lock_profit,
-                                    leg_value.roll_strike_lock_profit_sign,
-                                    leg_value.roll_strike_increase_in_profit,
-                                    leg_value.roll_strike_trail_profit,
-                                    leg_value.roll_strike_trail_profit_sign,
-                                    leg_value.simple_momentum_range_breakout,
-                                    leg_value.simple_momentum,
-                                    leg_value.simple_momentum_sign,
-                                    leg_value.simple_momentum_direction,
-                                    leg_value.range_breakout
-                                )
+                        created_by_value = leg_value.createdBy[0] if isinstance(leg_value.createdBy, (tuple, list)) and leg_value.createdBy else leg_value.createdBy
                         try:
+                            # Prepare the SQL query
+                            query = """
+                                INSERT INTO portfoliostrategyvariableslegs (
+                                    portfolio_strategy_variables_id, lots, position, option_type, expiry, no_of_reentry,
+                                    strike_selection_criteria, closest_premium, strike_type, straddle_width_value, straddle_width_sign,
+                                    percent_of_atm_strike_value, percent_of_atm_strike_sign, atm_straddle_premium,
+                                    strike_selection_criteria_stop_loss, strike_selection_criteria_stop_loss_sign,
+                                    strike_selection_criteria_trailing_options, strike_selection_criteria_profit_reaches,
+                                    strike_selection_criteria_lock_profit, strike_selection_criteria_lock_profit_sign,
+                                    strike_selection_criteria_increase_in_profit, strike_selection_criteria_trail_profit,
+                                    strike_selection_criteria_trail_profit_sign, roll_strike, roll_strike_strike_type,
+                                    roll_strike_stop_loss, roll_strike_stop_loss_sign, roll_strike_trailing_options,
+                                    roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign,
+                                    roll_strike_increase_in_profit, roll_strike_trail_profit, roll_strike_trail_profit_sign,
+                                    simple_momentum_range_breakout, simple_momentum, simple_momentum_sign, simple_momentum_direction,
+                                    range_breakout, createdBy
+                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            """
+                            
+                            # Debug: Check the leg_value attributes
+                            print(f"Leg Value: {leg_value}")
+                            
+                            # Create the values tuple to insert
+                            values = (
+                                portfolio_strategy_id,
+                                leg_value.lots,
+                                leg_value.position,
+                                leg_value.option_type,
+                                leg_value.expiry,
+                                leg_value.no_of_reentry,
+                                leg_value.strike_selection_criteria,
+                                leg_value.closest_premium,
+                                leg_value.strike_type,
+                                leg_value.straddle_width_value,
+                                leg_value.straddle_width_sign,
+                                leg_value.percent_of_atm_strike_value,
+                                leg_value.percent_of_atm_strike_sign,
+                                leg_value.atm_straddle_premium,
+                                leg_value.strike_selection_criteria_stop_loss,
+                                leg_value.strike_selection_criteria_stop_loss_sign,
+                                leg_value.strike_selection_criteria_trailing_options,
+                                leg_value.strike_selection_criteria_profit_reaches,
+                                leg_value.strike_selection_criteria_lock_profit,
+                                leg_value.strike_selection_criteria_lock_profit_sign,
+                                leg_value.strike_selection_criteria_increase_in_profit,
+                                leg_value.strike_selection_criteria_trail_profit,
+                                leg_value.strike_selection_criteria_trail_profit_sign,
+                                leg_value.roll_strike,
+                                leg_value.roll_strike_strike_type,
+                                leg_value.roll_strike_stop_loss,
+                                leg_value.roll_strike_stop_loss_sign,
+                                leg_value.roll_strike_trailing_options,
+                                leg_value.roll_strike_profit_reaches,
+                                leg_value.roll_strike_lock_profit,
+                                leg_value.roll_strike_lock_profit_sign,
+                                leg_value.roll_strike_increase_in_profit,
+                                leg_value.roll_strike_trail_profit,
+                                leg_value.roll_strike_trail_profit_sign,
+                                leg_value.simple_momentum_range_breakout,
+                                leg_value.simple_momentum,
+                                leg_value.simple_momentum_sign,
+                                leg_value.simple_momentum_direction,
+                                leg_value.range_breakout,
+                                created_by_value
+                            )
+
+                            # Debug: Print the values to check the format
+                            print(f"Values: {values}")
+                            
+                            # Execute the query and commit the transaction
                             mycursor.execute(query, values)
                             mydb.commit()
-                            print("Insertion successful into leg table! ", portfolio_strategy_id)
+                            print(f"Insertion successful into leg table! Portfolio Strategy ID: {portfolio_strategy_id}")
+                        
                         except Exception as e:
-                            print("Error inserting into leg table:", e)
+                            print(f"Error inserting into leg table for Portfolio Strategy ID {portfolio_strategy_id}: {e}")
                             return
                 except Exception as e:
                     print("Error inserting into portfoliostrategyvariables table:", e)
@@ -446,7 +479,7 @@ def update_legs(leg_value,last_id,leg_ids,portfolio_strategy_variable_id):
             roll_strike = %s,roll_strike_strike_type = %s,roll_strike_stop_loss = %s,roll_strike_stop_loss_sign = %s,roll_strike_trailing_options = %s,roll_strike_profit_reaches = %s,
             roll_strike_lock_profit = %s,roll_strike_lock_profit_sign = %s,roll_strike_increase_in_profit = %s,roll_strike_trail_profit = %s,
             roll_strike_trail_profit_sign = %s,simple_momentum_range_breakout = %s,simple_momentum = %s,simple_momentum_sign = %s,
-            simple_momentum_direction = %s,range_breakout = %s
+            simple_momentum_direction = %s,range_breakout = %s,modifiedBy = %s
         WHERE portfolio_strategy_variables_id = %s AND id = %s
     """
     # Prepare the values for the UPDATE query
@@ -489,6 +522,7 @@ def update_legs(leg_value,last_id,leg_ids,portfolio_strategy_variable_id):
             leg_value.get('simple_momentum_sign'),
             leg_value.get('simple_momentum_direction'),
             leg_value.get('range_breakout'),
+            leg_value.get('modifiedBy'),
             portfolio_strategy_variable_id,  # Assuming you are using this as a condition
             last_id     # Assuming this is the identifier for the row to update
         )
@@ -513,9 +547,9 @@ class PortfolioRepo:
         result = mycursor.fetchone()
         # print(result[0])
         
-        query = "UPDATE portfolio SET name = %s WHERE id = %s"
+        query = "UPDATE portfolio SET name = %s, modifiedBy = %s WHERE id = %s"
         try:
-            name_value = (portfolio.name, portId)
+            name_value = (portfolio.name,portfolio.modifiedBy,portId)
             mycursor.execute(query, name_value)
             mydb.commit()
             print("Data updated successfully in portfolio table.")
@@ -538,7 +572,7 @@ class PortfolioRepo:
         if json_id in ids_in_data:
             print("update")
             query = """
-            UPDATE portfoliostrategies SET symbol = %s, quantity_multiplier = %s, monday = %s, tuesday = %s, wednesday = %s, thrusday = %s, friday = %s
+            UPDATE portfoliostrategies SET symbol = %s, quantity_multiplier = %s, monday = %s, tuesday = %s, wednesday = %s, thrusday = %s, friday = %s, modifiedBy=%s
             WHERE portfolio_id = %s AND strategy_id = %s
             """
             values = (
@@ -549,6 +583,7 @@ class PortfolioRepo:
                 strategy_data.get('wednesday', None),
                 strategy_data.get('thrusday', None),  # Corrected spelling
                 strategy_data.get('friday', None),
+                strategy_data.get('modifiedBy', 0),
                 portId,
                 json_id
             )
@@ -564,8 +599,8 @@ class PortfolioRepo:
         else:
             print("insert")
             query = """
-                INSERT INTO portfoliostrategies (portfolio_id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO portfoliostrategies (portfolio_id, strategy_id, symbol, quantity_multiplier, monday, tuesday, wednesday, thrusday, friday,createdBy)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             values = (
                 portId,
@@ -576,7 +611,8 @@ class PortfolioRepo:
                 strategy_data.get('tuesday', None),
                 strategy_data.get('wednesday', None),
                 strategy_data.get('thursday', None),  # Corrected spelling
-                strategy_data.get('friday', None)
+                strategy_data.get('friday', None),
+                strategy_data.get('createdBy', 0)
             )
             mycursor.execute(query, values)
             mydb.commit()
@@ -600,7 +636,7 @@ class PortfolioRepo:
             print(last_id)
             query = """
             UPDATE portfoliostrategyvariables SET underlying = %s, strategy_type = %s, quantity_multiplier = %s, implied_futures_expiry = %s, entry_time = %s, last_entry_time = %s, exit_time = %s,
-            square_off = %s, overall_sl = %s, overall_target = %s, trailing_options = %s, profit_reaches = %s, increase_in_profit = %s, trail_profit = %s
+            square_off = %s, overall_sl = %s, overall_target = %s, trailing_options = %s, profit_reaches = %s, increase_in_profit = %s, trail_profit = %s,modifiedBy=%s
             WHERE  portfolio_strategy_id = %s and id = %s
             """
             values = (
@@ -618,6 +654,7 @@ class PortfolioRepo:
                variable.get('profit_reaches'),
                variable.get('increase_in_profit'),
                variable.get('trail_profit'),
+               variable.get('modifiedBy'),
                strategy_id,
                last_id
             )
@@ -630,8 +667,8 @@ class PortfolioRepo:
                     INSERT INTO portfoliostrategyvariables (
                         portfolio_strategy_id, underlying, strategy_type, quantity_multiplier, implied_futures_expiry,
                         entry_time, last_entry_time, exit_time, square_off, overall_sl, overall_target, trailing_options,
-                        profit_reaches, lock_profit, increase_in_profit, trail_profit
-                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        profit_reaches, lock_profit, increase_in_profit, trail_profit,createdBy
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
                 """
             values = (
                     strategy_id,  # Use the strategy_id as portfolio_strategy_id
@@ -650,6 +687,7 @@ class PortfolioRepo:
                     variable.get('lock_profit'),
                     variable.get('increase_in_profit'),
                     variable.get('trail_profit'),
+                    variable.get('createdBy'),
                 )
             
             mycursor.execute(query, values)
@@ -666,7 +704,7 @@ class PortfolioRepo:
             #print(2)
             query = """
             UPDATE portfoliostrategyvariables SET underlying = %s, strategy_type = %s, quantity_multiplier = %s, implied_futures_expiry = %s, entry_time = %s, last_entry_time = %s, exit_time = %s,
-            square_off = %s, overall_sl = %s, overall_target = %s, trailing_options = %s, profit_reaches = %s, increase_in_profit = %s, trail_profit = %s
+            square_off = %s, overall_sl = %s, overall_target = %s, trailing_options = %s, profit_reaches = %s, increase_in_profit = %s, trail_profit = %s, modifiedBy=%s
             WHERE id = %s
             """
             values = (
@@ -684,6 +722,7 @@ class PortfolioRepo:
                variable.get('profit_reaches'),
                variable.get('increase_in_profit'),
                variable.get('trail_profit'),
+               variable.get('modifiedBy'),
                statVarId
             )
             mycursor.execute(query, values)
@@ -728,8 +767,8 @@ class PortfolioRepo:
                                 roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign,
                                 roll_strike_increase_in_profit, roll_strike_trail_profit, roll_strike_trail_profit_sign,
                                 simple_momentum_range_breakout, simple_momentum, simple_momentum_sign, simple_momentum_direction,
-                                range_breakout
-                            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                range_breakout,createdBy
+                            ) VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         """
             
                 values = (
@@ -771,7 +810,8 @@ class PortfolioRepo:
                                 leg_value.get('simple_momentum'),
                                 leg_value.get('simple_momentum_sign'),
                                 leg_value.get('simple_momentum_direction'),
-                                leg_value.get('range_breakout')
+                                leg_value.get('range_breakout'),
+                                leg_value.get('createdBy')
                             )
                         
                 mycursor.execute(query, values)
@@ -828,7 +868,7 @@ class PortfolioRepo:
 
     def insert_data(self,portfolio,strategies,strategyvariables,legs):
         mycursor = mydb.cursor()
-        
+        print(portfolio)
         query = "SELECT id FROM portfolio WHERE name = %s"
         mycursor.execute(query, (portfolio.name,))
         result = mycursor.fetchone()
@@ -839,15 +879,30 @@ class PortfolioRepo:
             print("Portfolio already exists. Using Portfolio ID:", portfolio_id)
             insert_strategy(strategies,strategyvariables,legs,portfolio_id)
         else:
-            # Insert into portfolio table
-            query = "INSERT INTO portfolio (name) VALUES (%s)"
+            # Insert into portfolio table 
+            mycursor.execute("SHOW COLUMNS FROM portfolio")
+
+            # Fetch all results from the query
+            columns = mycursor.fetchall()
+
+            # Print the column information
+            print("Columns in 'portfolio' table:")
+            for column in columns:
+                print(column)
+
+            query = """
+            INSERT INTO portfolio (name, createdBy)
+            VALUES (%s, %s)
+            """
+            portfolio_data = (portfolio.name, portfolio.createdBy,)
+            
             try:
-                mycursor.execute(query, (portfolio.name,))
+                mycursor.execute(query, portfolio_data)
                 mydb.commit()
                 print("Data inserted successfully in portfolio table.")
                 portfolio_id = mycursor.lastrowid
                 print("Portfolio ID:", portfolio_id)
-                insert_strategy(strategies,strategyvariables,legs,portfolio_id)
+                insert_strategy(strategies, strategyvariables, legs, portfolio_id)
             except Exception as e:
                 print("Error inserting into portfolio table:", e)
         # Insert into portfolio tab

@@ -60,11 +60,12 @@ class Portfolioservice:
         strategies = []
         strategy_variables = []
         legs = []
-    
+        #print(data)
     
         # Create Portfolio object
-        portfolio = Portfolio(id=data['id'], name=data['name'])
+        portfolio = Portfolio(id=self.data.get('id'), name=self.data.get('name'),createdBy=self.data.get('createdBy',0),modifiedBy=self.data.get('modifiedBy',0))
         #print(data['strategies'])
+        print(portfolio)
         # Iterate over each strategy in the data
         for strategy_data in data['strategies']: 
             #print(6)
@@ -79,7 +80,9 @@ class Portfolioservice:
                 tuesday=strategy_data.get('tuesday',False),
                 wednesday=strategy_data.get('wednesday',False),
                 thrusday=strategy_data.get('thrusday',False),
-                friday=strategy_data.get('friday',False)
+                friday=strategy_data.get('friday',False),
+                createdBy = strategy_data.get('createdBy',0),
+                modifiedBy=strategy_data.get('modifiedBy',0)
                 # Add other attributes as per your Strategy model
             )
             strategies.append(strategy)
@@ -105,7 +108,9 @@ class Portfolioservice:
                         profit_reaches=strategy_variables_entry.get('profit_reaches',0),
                         lock_profit=strategy_variables_entry.get('lock_profit',0),
                         increase_in_profit=strategy_variables_entry.get('increase_in_profit',0),
-                        trail_profit=strategy_variables_entry.get('trail_profit',0)
+                        trail_profit=strategy_variables_entry.get('trail_profit',0),
+                        createdBy=strategy_variables_entry.get('createdBy',0),
+                        modifiedBy=strategy_variables_entry.get('modifiedBy',0)
                         # Add other attributes as per your Variables model
                         
                     )
@@ -156,7 +161,9 @@ class Portfolioservice:
                                 simple_momentum=leg_entry.get('simple_momentum'),
                                 simple_momentum_sign=leg_entry.get('simple_momentum_sign'),
                                 simple_momentum_direction=leg_entry.get('simple_momentum_direction'),
-                                range_breakout=leg_entry.get('range_breakout')
+                                range_breakout=leg_entry.get('range_breakout'),
+                                createdBy = leg_entry.get('createdBy'),
+                                modifiedBy=leg_entry.get('modifiedBy',0)
                                 # Add other attributes as per your Leg model
                             )
                 legs.append(leg)
@@ -177,7 +184,7 @@ class Portfolioservice:
     
     
         # Create Portfolio object
-        portfolio = Portfolio(id=data['id'], name=data['name'])
+        portfolio = Portfolio(id=self.data.get('id'), name=self.data.get('name'),createdBy=self.data.get('createdBy',0),modifiedBy=self.data.get('modifiedBy',0))
         
         
         repo = PortfolioRepo()
@@ -221,20 +228,17 @@ class Portfolioservice:
         return strategy_details
     
 class Portfolio:
-    def __init__(self,id:int,name:str):
-        #print(id)
+    def __init__(self, id: int, name: str, createdBy: int, modifiedBy: int):
         self.id = id
-        self.name=name
-        #print(3)
-        #print(self.id)
+        self.name = name  # Remove the trailing comma to prevent it from being a tuple
+        self.createdBy = createdBy
+        self.modifiedBy = modifiedBy
 
-    def _repr_(self):
-        #print(self.id)
-        return f"Portfolio(id={self.id},name={self.name})"
-    
+    def __repr__(self):  # Correct the method name to '__repr__'
+        return f"Portfolio(id={self.id}, name={self.name}, createdBy={self.createdBy}, modifiedBy={self.modifiedBy})"
 
 class Strategy:
-    def __init__(self,id:int,portfolio_id:int,strategy_id:int,symbol:str,quantity_multiplier:int,monday:bool,tuesday:bool,wednesday:bool,thrusday:bool,friday:bool):
+    def __init__(self,id:int,portfolio_id:int,strategy_id:int,symbol:str,quantity_multiplier:int,monday:bool,tuesday:bool,wednesday:bool,thrusday:bool,friday:bool,createdBy:int,modifiedBy:int):
             #print(id)
             #print(position)
         self.id = id
@@ -247,15 +251,17 @@ class Strategy:
         self.wednesday = bool(wednesday)
         self.thrusday = bool(thrusday)
         self.friday = bool(friday)
+        self.createdBy = createdBy
+        self.modifiedBy = modifiedBy
         #print(1)
         
     def _repr_(self):
         #print(self.id)
-        return f"Strategy(id={self.id},portfolio_id={self.portfolio_id},strategy_id={self.strategy_id},symbol={self.symbol},quantity_multiplier={self.quantity_multiplier},monday={self.monday},tuesday={self.tuesday},wednesday={self.wednesday},thrusday={self.thrusday},friday={self.friday})"
+        return f"Strategy(id={self.id},portfolio_id={self.portfolio_id},strategy_id={self.strategy_id},symbol={self.symbol},quantity_multiplier={self.quantity_multiplier},monday={self.monday},tuesday={self.tuesday},wednesday={self.wednesday},thrusday={self.thrusday},friday={self.friday},createdBy={self.createdBy},modifiedBy={self.modifiedBy})"
     
     
 class Variables:
-    def __init__(self,id:int,portfolio_strategy_id:int,underlying:str,strategy_type:str,quantity_multiplier:str,implied_futures_expiry:str,entry_time:str,last_entry_time:str,exit_time:str,square_off:str,overall_sl:int,overall_target:int,trailing_options:str,profit_reaches:int,lock_profit:int,increase_in_profit:int,trail_profit:int):
+    def __init__(self,id:int,portfolio_strategy_id:int,underlying:str,strategy_type:str,quantity_multiplier:str,implied_futures_expiry:str,entry_time:str,last_entry_time:str,exit_time:str,square_off:str,overall_sl:int,overall_target:int,trailing_options:str,profit_reaches:int,lock_profit:int,increase_in_profit:int,trail_profit:int,createdBy:int,modifiedBy:int):
         #print(id)
         self.id = id
         self.portfolio_strategy_id=portfolio_strategy_id
@@ -274,15 +280,17 @@ class Variables:
         self.lock_profit=lock_profit
         self.increase_in_profit=increase_in_profit
         self.trail_profit=trail_profit
+        self.createdBy = createdBy
+        self.modifiedBy = modifiedBy
         #print(2)
         #print(self.id)
 
     def _repr_(self):
         #print(self.id)
-        return f"Variables(id={self.id},name={self.name},underlying={self.underlying},strategy_type={self.strategy_type},quantity_multiplier={self.quantity_multiplier},implied_futures_expiry={self.implied_futures_expiry},entry_time={self.entry_time},last_entry_time={self.last_entry_time},exit_time={self.exit_time},square_off={self.square_off},overall_sl={self.overall_sl},overall_target={self.overall_target},trailing_options={self.trailing_options},profit_reaches={self.profit_reaches},lock_profit={self.lock_profit},increase_in_profit={self.increase_in_profit},trail_profit={self.trail_profit})"
+        return f"Variables(id={self.id},name={self.name},underlying={self.underlying},strategy_type={self.strategy_type},quantity_multiplier={self.quantity_multiplier},implied_futures_expiry={self.implied_futures_expiry},entry_time={self.entry_time},last_entry_time={self.last_entry_time},exit_time={self.exit_time},square_off={self.square_off},overall_sl={self.overall_sl},overall_target={self.overall_target},trailing_options={self.trailing_options},profit_reaches={self.profit_reaches},lock_profit={self.lock_profit},increase_in_profit={self.increase_in_profit},trail_profit={self.trail_profit},createdBy={self.createdBy},modifiedBy={self.modifiedBy})"
 
 class Leg:
-    def __init__(self,id:int,portfolio_strategy_variables_id:int ,lots:int,position:str,option_type:str,expiry:str,no_of_reentry:int,strike_selection_criteria:str,closest_premium:int,strike_type:str,straddle_width_value:str,straddle_width_sign:str,percent_of_atm_strike_value:str,percent_of_atm_strike_sign:str,atm_straddle_premium:int,strike_selection_criteria_stop_loss:int,strike_selection_criteria_stop_loss_sign:str,strike_selection_criteria_trailing_options:str,strike_selection_criteria_profit_reaches:int,strike_selection_criteria_lock_profit:int,strike_selection_criteria_lock_profit_sign:str,strike_selection_criteria_increase_in_profit:int,strike_selection_criteria_trail_profit:int,strike_selection_criteria_trail_profit_sign:str,roll_strike:int,roll_strike_strike_type:str,roll_strike_stop_loss:int,roll_strike_stop_loss_sign:str,roll_strike_trailing_options:str,roll_strike_profit_reaches:int,roll_strike_lock_profit:int,roll_strike_lock_profit_sign:str,roll_strike_increase_in_profit:int,roll_strike_trail_profit:int,roll_strike_trail_profit_sign:str,simple_momentum_range_breakout:str,simple_momentum:int,simple_momentum_sign:str,simple_momentum_direction:str,range_breakout:str):
+    def __init__(self,id:int,portfolio_strategy_variables_id:int ,lots:int,position:str,option_type:str,expiry:str,no_of_reentry:int,strike_selection_criteria:str,closest_premium:int,strike_type:str,straddle_width_value:str,straddle_width_sign:str,percent_of_atm_strike_value:str,percent_of_atm_strike_sign:str,atm_straddle_premium:int,strike_selection_criteria_stop_loss:int,strike_selection_criteria_stop_loss_sign:str,strike_selection_criteria_trailing_options:str,strike_selection_criteria_profit_reaches:int,strike_selection_criteria_lock_profit:int,strike_selection_criteria_lock_profit_sign:str,strike_selection_criteria_increase_in_profit:int,strike_selection_criteria_trail_profit:int,strike_selection_criteria_trail_profit_sign:str,roll_strike:int,roll_strike_strike_type:str,roll_strike_stop_loss:int,roll_strike_stop_loss_sign:str,roll_strike_trailing_options:str,roll_strike_profit_reaches:int,roll_strike_lock_profit:int,roll_strike_lock_profit_sign:str,roll_strike_increase_in_profit:int,roll_strike_trail_profit:int,roll_strike_trail_profit_sign:str,simple_momentum_range_breakout:str,simple_momentum:int,simple_momentum_sign:str,simple_momentum_direction:str,range_breakout:str,createdBy:int,modifiedBy:int):
             #print(id)
             #print(position)
         self.id = id
@@ -325,8 +333,10 @@ class Leg:
         self.simple_momentum_sign = simple_momentum_sign
         self.simple_momentum_direction = simple_momentum_direction
         self.range_breakout = range_breakout
+        self.createdBy = createdBy,
+        self.modifiedBy = modifiedBy
         #print(self.position)
         #print(4)
     def _repr_(self):
         #print(self.id)
-        return f"Leg(id={self.id},strategy_id={self.strategy_id},leg_no={self.leg_no},lots={self.lots},position={self.position},option_type={self.option_type},expiry={self.expiry},no_of_reentry={self.no_of_reentry},strike_selection_criteria={self.strike_selection_criteria},closest_premium={self.closest_premium},strike_type={self.strike_type},straddle_width_value={self.straddle_width_value},straddle_width_sign={self.straddle_width_sign},percent_of_atm_strike_value={self.percent_of_atm_strike_value},percent_of_atm_strike_sign={self.percent_of_atm_strike_sign},atm_straddle_premium={self.atm_straddle_premium},strike_selection_criteria_stop_loss={self.strike_selection_criteria_stop_loss},strike_selection_criteria_stop_loss_sign={self.strike_selection_criteria_stop_loss_sign},strike_selection_criteria_trailing_options={self.strike_selection_criteria_trailing_options},strike_selection_criteria_profit_reaches={self.strike_selection_criteria_profit_reaches},strike_selection_criteria_lock_profit={self.strike_selection_criteria_lock_profit},strike_selection_criteria_lock_profit_sign={self.strike_selection_criteria_lock_profit_sign},strike_selection_criteria_increase_in_profit={self.strike_selection_criteria_increase_in_profit},strike_selection_criteria_trail_profit={self.strike_selection_criteria_trail_profit},strike_selection_criteria_trail_profit_sign={self.strike_selection_criteria_trail_profit_sign},roll_strike={self.roll_strike},roll_strike_strike_type={self.roll_strike_strike_type},roll_strike_stop_loss={self.roll_strike_stop_loss},roll_strike_stop_loss_sign={self.roll_strike_stop_loss_sign},roll_strike_trailing_options={self.roll_strike_trailing_options},roll_strike_profit_reaches={self.roll_strike_profit_reaches},roll_strike_lock_profit={self.roll_strike_lock_profit},roll_strike_lock_profit_sign={self.roll_strike_lock_profit_sign},roll_strike_increase_in_profit={self.roll_strike_increase_in_profit},roll_strike_trail_profit={self.roll_strike_trail_profit},roll_strike_trail_profit_sign={self.roll_strike_trail_profit_sign},simple_momentum_range_breakout={self.simple_momentum_range_breakout},simple_momentum={self.simple_momentum},simple_momentum_sign={self.simple_momentum_sign},simple_momentum_direction={self.simple_momentum_direction},range_breakout={self.range_breakout})"
+        return f"Leg(id={self.id},strategy_id={self.strategy_id},leg_no={self.leg_no},lots={self.lots},position={self.position},option_type={self.option_type},expiry={self.expiry},no_of_reentry={self.no_of_reentry},strike_selection_criteria={self.strike_selection_criteria},closest_premium={self.closest_premium},strike_type={self.strike_type},straddle_width_value={self.straddle_width_value},straddle_width_sign={self.straddle_width_sign},percent_of_atm_strike_value={self.percent_of_atm_strike_value},percent_of_atm_strike_sign={self.percent_of_atm_strike_sign},atm_straddle_premium={self.atm_straddle_premium},strike_selection_criteria_stop_loss={self.strike_selection_criteria_stop_loss},strike_selection_criteria_stop_loss_sign={self.strike_selection_criteria_stop_loss_sign},strike_selection_criteria_trailing_options={self.strike_selection_criteria_trailing_options},strike_selection_criteria_profit_reaches={self.strike_selection_criteria_profit_reaches},strike_selection_criteria_lock_profit={self.strike_selection_criteria_lock_profit},strike_selection_criteria_lock_profit_sign={self.strike_selection_criteria_lock_profit_sign},strike_selection_criteria_increase_in_profit={self.strike_selection_criteria_increase_in_profit},strike_selection_criteria_trail_profit={self.strike_selection_criteria_trail_profit},strike_selection_criteria_trail_profit_sign={self.strike_selection_criteria_trail_profit_sign},roll_strike={self.roll_strike},roll_strike_strike_type={self.roll_strike_strike_type},roll_strike_stop_loss={self.roll_strike_stop_loss},roll_strike_stop_loss_sign={self.roll_strike_stop_loss_sign},roll_strike_trailing_options={self.roll_strike_trailing_options},roll_strike_profit_reaches={self.roll_strike_profit_reaches},roll_strike_lock_profit={self.roll_strike_lock_profit},roll_strike_lock_profit_sign={self.roll_strike_lock_profit_sign},roll_strike_increase_in_profit={self.roll_strike_increase_in_profit},roll_strike_trail_profit={self.roll_strike_trail_profit},roll_strike_trail_profit_sign={self.roll_strike_trail_profit_sign},simple_momentum_range_breakout={self.simple_momentum_range_breakout},simple_momentum={self.simple_momentum},simple_momentum_sign={self.simple_momentum_sign},simple_momentum_direction={self.simple_momentum_direction},range_breakout={self.range_breakout},createdBy={self.createdBy},modifiedBy={self.modifiedBy})"

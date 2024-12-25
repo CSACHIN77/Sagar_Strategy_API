@@ -59,7 +59,7 @@ def create_database():
         conn.commit()
         print("Table 'User' created successfully (if it did not exist).")
     
-
+        
         # Create the Billing table with composite primary key
         create_billing_table_query = """
         CREATE TABLE IF NOT EXISTS Billing (
@@ -81,7 +81,6 @@ def create_database():
         conn.commit()
         print("Table 'Billing' created successfully (if it did not exist).")
 
-        
  
         # Create the ProfitSharingSlabs table with composite primary key
         create_profit_sharing_slabs_table_query = """
@@ -100,6 +99,7 @@ def create_database():
         conn.commit()
         print("Table 'ProfitSharingSlabs' created successfully (if it did not exist).")
 
+
         create_modules_table_query = """
         CREATE TABLE IF NOT EXISTS Modules (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -109,6 +109,7 @@ def create_database():
         cursor.execute(create_modules_table_query)
         print("Table 'Modules' created successfully (if it did not exist).")
 
+        
         create_user_access_modules_table_query = """
         CREATE TABLE IF NOT EXISTS UserAccessModules (
             id INT AUTO_INCREMENT,
@@ -123,6 +124,7 @@ def create_database():
         cursor.execute(create_user_access_modules_table_query)
         print("Table 'UserAccessModules' created successfully (if it did not exist).")
 
+        
         # Create the Broker table
         create_broker_table_query = """
         CREATE TABLE IF NOT EXISTS Broker (
@@ -132,6 +134,7 @@ def create_database():
         """
         cursor.execute(create_broker_table_query)
         print("Table 'Broker' created successfully (if it did not exist).")
+
 
         # Create the UserBrokers table with composite primary key
         create_user_brokers_table_query = """
@@ -150,6 +153,164 @@ def create_database():
         """
         cursor.execute(create_user_brokers_table_query)
         print("Table 'UserBrokers' created successfully (if it did not exist).")
+
+        
+        '''
+        #ALTER STRATEGY TABLE
+        alter_strategy_query = """
+        ALTER TABLE strategy
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_strategy_query)
+        print("Table 'strategy' updated successfully.")
+        
+        #ALTER LEG TABLE
+        alter_leg_query = """
+        ALTER TABLE leg
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_leg_query)
+        print("Table 'leg' updated successfully.")
+        '''
+        #ALTER Portfolio table
+        alter_leg_query = """
+        ALTER TABLE portfolio
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_leg_query)
+        print("Table 'Portfolio' updated successfully.")
+
+        #ALTER PortfolioStrategies table
+        alter_leg_query = """
+        ALTER TABLE portfoliostrategies
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_leg_query)
+        print("Table 'PortfolioStrategies' updated successfully.")
+
+        #ALTER PortfolioStrategyVariables table
+        alter_leg_query = """
+        ALTER TABLE portfoliostrategyvariables
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_leg_query)
+        print("Table 'portfoliostrategyvariables' updated successfully.")
+
+        #ALTER PortfolioStrategyVariablesLegs table
+        alter_leg_query = """
+        ALTER TABLE portfoliostrategyvariableslegs
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_leg_query)
+        print("Table 'portfoliostrategyvariableslegs' updated successfully.")
+
+        #ALTER TABLE User
+        alter_strategy_query = """
+        ALTER TABLE User
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_strategy_query)
+        print("Table 'User' updated successfully.")
+
+        #ALTER TABLE Billing
+        alter_strategy_query = """
+        ALTER TABLE Billing
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_strategy_query)
+        print("Table 'Billing' updated successfully.")
+
+        #ALTER TABLE ProfitSharingSlabs
+        alter_strategy_query = """
+        ALTER TABLE ProfitSharingSlabs
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_strategy_query)
+        print("Table 'ProfitSharingSlabs' updated successfully.")
+
+        #ALTER TABLE Modules
+        alter_strategy_query = """
+        ALTER TABLE Modules
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_strategy_query)
+        print("Table 'Modules' updated successfully.")
+
+        #ALTER TABLE UserAccessModules
+        alter_strategy_query = """
+        ALTER TABLE UserAccessModules
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_strategy_query)
+        print("Table 'UserAccessModules' updated successfully.")
+
+        #ALTER TABLE Broker
+        alter_strategy_query = """
+        ALTER TABLE Broker
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_strategy_query)
+        print("Table 'Broker' updated successfully.")
+
+        #ALTER TABLE UserBrokers
+        alter_strategy_query = """
+        ALTER TABLE UserBrokers
+        ADD COLUMN createdBy INT,
+        ADD COLUMN createdDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+        ADD COLUMN modifiedBy INT,
+        ADD COLUMN lastUpdatedDateTime DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+        """
+        # Execute the query
+        cursor.execute(alter_strategy_query)
+        print("Table 'UserBrokers' updated successfully.")
 
     except Exception as e:
         print(f"An error occurred: {e}")

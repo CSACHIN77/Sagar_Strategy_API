@@ -64,7 +64,7 @@ def save_strategy():
         
         transformed_data = {"strategies": data}
         # Example processing (you might want to pass this data to Strategyservice)
-        print("Received JSON data:", transformed_data)
+        #print("Received JSON data:", transformed_data)
         strategy = Strategyservice(transformed_data)
         strategy.process_insert_data(transformed_data)
         

@@ -52,6 +52,10 @@ def convert_to_json(result,strategy_id,value):
               "lock_profit": row["lock_profit"],
               "increase_in_profit": row["increase_in_profit"],
               "trail_profit": row["trail_profit"],
+              "createdBy" : row["createdBy"],
+              "createdDate" : row["createdDate"],
+              "modifiedBy" : row["modifiedBy"],
+              "lastUpdatedDateTime" : row["lastUpdatedDateTime"],
              "legs": []
             
             }
@@ -63,7 +67,7 @@ def convert_to_json(result,strategy_id,value):
                     roll_strike_profit_reaches,roll_strike_stop_loss,roll_strike_stop_loss_sign,roll_strike_strike_type,roll_strike_trail_profit,roll_strike_trail_profit_sign,roll_strike_trailing_options,
                     simple_momentum,simple_momentum_direction,simple_momentum_range_breakout,simple_momentum_sign,straddle_width_sign,straddle_width_value,strategy_id,strike_selection_criteria,
                     strike_selection_criteria_increase_in_profit,strike_selection_criteria_lock_profit,strike_selection_criteria_lock_profit_sign,strike_selection_criteria_profit_reaches,strike_selection_criteria_stop_loss,
-                    strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,strike_selection_criteria_trailing_options,strike_type,expiry FROM leg WHERE strategy_id = %s"""  # Replace 'legs' and 'strategy_id' with your table and column names
+                    strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,strike_selection_criteria_trailing_options,strike_type,expiry,createdBy,createdDate,modifiedBy,lastUpdatedDateTime FROM leg WHERE strategy_id = %s"""  # Replace 'legs' and 'strategy_id' with your table and column names
         mycursor.execute(leg_sql, (strategy_id,))
         leg_rows = mycursor.fetchall()
         #print(leg_rows)
@@ -112,7 +116,11 @@ def convert_to_json(result,strategy_id,value):
                 "strike_selection_criteria_trail_profit_sign": leg_row[37],
                 "strike_selection_criteria_trailing_options": leg_row[38],
                 "strike_type": leg_row[39],
-                "expiry": leg_row[40]
+                "expiry": leg_row[40],
+                "createdBy" : leg_row[41],
+                "createdDate" : leg_row[42],
+                "modifiedBy" : leg_row[43],
+                "lastUpdatedDateTime" : leg_row[44],
                 }
             #print(leg)
             strategy["legs"].append(leg)
@@ -141,12 +149,12 @@ class StraddleRepo:
         INSERT INTO strategy (
                 name, underlying, strategy_type, implied_futures_expiry, entry_time,
                 last_entry_time, exit_time, square_off, overall_sl, overall_target,
-                trailing_options, profit_reaches, lock_profit, increase_in_profit, trail_profit
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                trailing_options, profit_reaches, lock_profit, increase_in_profit, trail_profit, createdBy
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         values = (strategy_data.name,strategy_data.underlying,strategy_data.strategy_type,strategy_data.implied_futures_expiry,strategy_data.entry_time,strategy_data.last_entry_time
                                  ,strategy_data.exit_time,strategy_data.square_off,strategy_data.overall_sl,strategy_data.overall_target,strategy_data.trailing_options,strategy_data.profit_reaches
-                                 ,strategy_data.lock_profit,strategy_data.increase_in_profit,strategy_data.trail_profit
+                                 ,strategy_data.lock_profit,strategy_data.increase_in_profit,strategy_data.trail_profit,strategy_data.createdBy,
         )
         #print(query) 
         mycursor.execute(query, values)
@@ -156,9 +164,9 @@ class StraddleRepo:
         #print("Inserted ID:", inserted_id)
     
             #print(leg_value.strategy_id)
-        query= """INSERT INTO leg (strategy_id,leg_no,lots,position,option_type,expiry,no_of_reentry,strike_selection_criteria,closest_premium,strike_type,straddle_width_value,straddle_width_sign,percent_of_atm_strike_value,percent_of_atm_strike_sign,atm_straddle_premium,strike_selection_criteria_stop_loss,strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trailing_options,strike_selection_criteria_profit_reaches,strike_selection_criteria_lock_profit,strike_selection_criteria_lock_profit_sign,strike_selection_criteria_increase_in_profit,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,roll_strike,roll_strike_strike_type,roll_strike_stop_loss,roll_strike_stop_loss_sign,roll_strike_trailing_options,roll_strike_profit_reaches,roll_strike_lock_profit,roll_strike_lock_profit_sign,roll_strike_increase_in_profit,roll_strike_trail_profit,roll_strike_trail_profit_sign,simple_momentum_range_breakout,simple_momentum,simple_momentum_sign,simple_momentum_direction,range_breakout) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+        query= """INSERT INTO leg (strategy_id,leg_no,lots,position,option_type,expiry,no_of_reentry,strike_selection_criteria,closest_premium,strike_type,straddle_width_value,straddle_width_sign,percent_of_atm_strike_value,percent_of_atm_strike_sign,atm_straddle_premium,strike_selection_criteria_stop_loss,strike_selection_criteria_stop_loss_sign,strike_selection_criteria_trailing_options,strike_selection_criteria_profit_reaches,strike_selection_criteria_lock_profit,strike_selection_criteria_lock_profit_sign,strike_selection_criteria_increase_in_profit,strike_selection_criteria_trail_profit,strike_selection_criteria_trail_profit_sign,roll_strike,roll_strike_strike_type,roll_strike_stop_loss,roll_strike_stop_loss_sign,roll_strike_trailing_options,roll_strike_profit_reaches,roll_strike_lock_profit,roll_strike_lock_profit_sign,roll_strike_increase_in_profit,roll_strike_trail_profit,roll_strike_trail_profit_sign,simple_momentum_range_breakout,simple_momentum,simple_momentum_sign,simple_momentum_direction,range_breakout,createdBy) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         for leg_value in legs_data:
-            values = (inserted_id,leg_value.leg_no,leg_value.lots,leg_value.position,leg_value.option_type,leg_value.expiry,leg_value.no_of_reentry,leg_value.strike_selection_criteria,leg_value.closest_premium,leg_value.strike_type,leg_value.straddle_width_value,leg_value.straddle_width_sign,leg_value.percent_of_atm_strike_value,leg_value.percent_of_atm_strike_sign,leg_value.atm_straddle_premium,leg_value.strike_selection_criteria_stop_loss,leg_value.strike_selection_criteria_stop_loss_sign,leg_value.strike_selection_criteria_trailing_options,leg_value.strike_selection_criteria_profit_reaches,leg_value.strike_selection_criteria_lock_profit,leg_value.strike_selection_criteria_lock_profit_sign,leg_value.strike_selection_criteria_increase_in_profit,leg_value.strike_selection_criteria_trail_profit,leg_value.strike_selection_criteria_trail_profit_sign,leg_value.roll_strike,leg_value.roll_strike_strike_type,leg_value.roll_strike_stop_loss,leg_value.roll_strike_stop_loss_sign,leg_value.roll_strike_trailing_options,leg_value.roll_strike_profit_reaches,leg_value.roll_strike_lock_profit,leg_value.roll_strike_lock_profit_sign,leg_value.roll_strike_increase_in_profit,leg_value.roll_strike_trail_profit,leg_value.roll_strike_trail_profit_sign,leg_value.simple_momentum_range_breakout,leg_value.simple_momentum,leg_value.simple_momentum_sign,leg_value.simple_momentum_direction,leg_value.range_breakout,)
+            values = (inserted_id,leg_value.leg_no,leg_value.lots,leg_value.position,leg_value.option_type,leg_value.expiry,leg_value.no_of_reentry,leg_value.strike_selection_criteria,leg_value.closest_premium,leg_value.strike_type,leg_value.straddle_width_value,leg_value.straddle_width_sign,leg_value.percent_of_atm_strike_value,leg_value.percent_of_atm_strike_sign,leg_value.atm_straddle_premium,leg_value.strike_selection_criteria_stop_loss,leg_value.strike_selection_criteria_stop_loss_sign,leg_value.strike_selection_criteria_trailing_options,leg_value.strike_selection_criteria_profit_reaches,leg_value.strike_selection_criteria_lock_profit,leg_value.strike_selection_criteria_lock_profit_sign,leg_value.strike_selection_criteria_increase_in_profit,leg_value.strike_selection_criteria_trail_profit,leg_value.strike_selection_criteria_trail_profit_sign,leg_value.roll_strike,leg_value.roll_strike_strike_type,leg_value.roll_strike_stop_loss,leg_value.roll_strike_stop_loss_sign,leg_value.roll_strike_trailing_options,leg_value.roll_strike_profit_reaches,leg_value.roll_strike_lock_profit,leg_value.roll_strike_lock_profit_sign,leg_value.roll_strike_increase_in_profit,leg_value.roll_strike_trail_profit,leg_value.roll_strike_trail_profit_sign,leg_value.simple_momentum_range_breakout,leg_value.simple_momentum,leg_value.simple_momentum_sign,leg_value.simple_momentum_direction,leg_value.range_breakout,leg_value.createdBy,)
             #print(query)
             #print(values)
             try:
@@ -190,9 +198,9 @@ class StraddleRepo:
                 roll_strike_strike_type, roll_strike_stop_loss, roll_strike_stop_loss_sign, roll_strike_trailing_options, 
                 roll_strike_profit_reaches, roll_strike_lock_profit, roll_strike_lock_profit_sign, roll_strike_increase_in_profit, 
                 roll_strike_trail_profit, roll_strike_trail_profit_sign, simple_momentum_range_breakout, simple_momentum, 
-                simple_momentum_sign, simple_momentum_direction, range_breakout)
+                simple_momentum_sign, simple_momentum_direction, range_breakout, modifiedBy)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
-                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
             leg_values = (strategyId, leg_value.leg_no, leg_value.lots, leg_value.position, leg_value.option_type, leg_value.expiry,
                           leg_value.no_of_reentry, leg_value.strike_selection_criteria, leg_value.closest_premium, leg_value.strike_type,
@@ -206,7 +214,7 @@ class StraddleRepo:
                           leg_value.roll_strike_stop_loss_sign, leg_value.roll_strike_trailing_options, leg_value.roll_strike_profit_reaches,
                           leg_value.roll_strike_lock_profit, leg_value.roll_strike_lock_profit_sign, leg_value.roll_strike_increase_in_profit,
                           leg_value.roll_strike_trail_profit, leg_value.roll_strike_trail_profit_sign, leg_value.simple_momentum_range_breakout,
-                          leg_value.simple_momentum, leg_value.simple_momentum_sign, leg_value.simple_momentum_direction, leg_value.range_breakout)
+                          leg_value.simple_momentum, leg_value.simple_momentum_sign, leg_value.simple_momentum_direction, leg_value.range_breakout, leg_value.modifiedBy)
     
             mycursor.execute(leg_query, leg_values)
             mydb.commit()
@@ -217,7 +225,7 @@ class StraddleRepo:
             SET
                 name = %s, underlying = %s, strategy_type = %s, implied_futures_expiry = %s, entry_time = %s,
                 last_entry_time = %s, exit_time = %s, square_off = %s, overall_sl = %s, overall_target = %s,
-                trailing_options = %s, profit_reaches = %s, lock_profit = %s, increase_in_profit = %s, trail_profit = %s
+                trailing_options = %s, profit_reaches = %s, lock_profit = %s, increase_in_profit = %s, trail_profit = %s , modifiedBy = %s
             WHERE
                 id = %s
             """
@@ -225,7 +233,7 @@ class StraddleRepo:
                            strategy_data.implied_futures_expiry, strategy_data.entry_time, strategy_data.last_entry_time,
                            strategy_data.exit_time, strategy_data.square_off, strategy_data.overall_sl,
                            strategy_data.overall_target, strategy_data.trailing_options, strategy_data.profit_reaches,
-                           strategy_data.lock_profit, strategy_data.increase_in_profit, strategy_data.trail_profit, strategyId)
+                           strategy_data.lock_profit, strategy_data.increase_in_profit, strategy_data.trail_profit, strategy_data.modifiedBy,strategyId)
         
         mycursor.execute(update_strategy_query, strategy_values)
         mydb.commit()

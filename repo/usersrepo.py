@@ -62,18 +62,21 @@ class UsersRepo:
         query = """
         INSERT INTO user (
             username, password, email, emailVerificationStatus, first_name, middle_name, last_name,
-            mobile, mobileVerificationStatus, address, dateofbirth, risk_profile, last_login, is_active
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            mobile, mobileVerificationStatus, address, dateofbirth, risk_profile, last_login, is_active,createdBy
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s)
         """
 
         print(f"mobileverify {data.get('mobileVerificationStatus')}")
 
         values = (
-            data['username'], data['password'], data['email'], convert_boolean(data.get('emailVerificationStatus', False)),
-            data.get('first_name'), data.get('middle_name'), data.get('last_name'),
-            data.get('mobile'), convert_boolean(data.get('mobileVerificationStatus', False)), data.get('address'),
-            data.get('dateofbirth'), data.get('risk_profile'), data.get('last_login'), convert_boolean(data.get('is_active', True))
+        data['username'], data['password'], data['email'],
+        convert_boolean(data.get('emailVerificationStatus', False)),
+        data.get('first_name', ''), data.get('middle_name', ''), data.get('last_name', ''),
+        data.get('mobile', ''), convert_boolean(data.get('mobileVerificationStatus', False)),
+        data.get('address', ''), data.get('dateofbirth', ''), data.get('risk_profile', ''),
+        data.get('last_login'), convert_boolean(data.get('is_active', True)),data.get('createdBy','')
         )
+
         
         try:
             mycursor.execute(query, values)
@@ -120,7 +123,8 @@ class UsersRepo:
                     dateofbirth = %s,
                     risk_profile = %s,
                     last_login = %s,
-                    is_active = %s
+                    is_active = %s,
+                    modifiedBy=%s
                 WHERE id = %s
             """
             values = (
@@ -138,6 +142,7 @@ class UsersRepo:
                 data['risk_profile'],
                 data['last_login'],
                 convert_boolean(data.get('is_active', True)),
+                data['modifiedBy'],
                 data['id']
             )
             
@@ -163,11 +168,11 @@ class UsersRepo:
         mycursor = conn.cursor()
         query = """
         INSERT INTO UserBrokers (
-            user_id, broker_id, API_Key, API_Secret,market_api_key,market_api_secret
-        ) VALUES (%s, %s, %s, %s, %s, %s)
+            user_id, broker_id, API_Key, API_Secret,market_api_key,market_api_secret,createdBy
+        ) VALUES (%s, %s, %s, %s, %s, %s,%s)
         """
         values = (
-            data['user_id'], data['broker_id'], data['api_key'], data['api_secret'],data['market_api_key'],data['market_api_secret']
+            data['user_id'], data['broker_id'], data['api_key'], data['api_secret'],data['market_api_key'],data['market_api_secret'],data['createdBy']
         )
         
         try:
@@ -205,7 +210,8 @@ class UsersRepo:
                     API_Key = %s,
                     API_Secret = %s,
                     market_api_key = %s,
-                    market_api_secret = %s
+                    market_api_secret = %s,
+                    modifiedBy = %s
                 WHERE id = %s AND user_id = %s AND broker_id = %s
             """
             values = (
@@ -213,6 +219,7 @@ class UsersRepo:
                 data['api_secret'],
                 data['market_api_key'],
                 data['market_api_secret'],
+                data['modifiedBy'],
                 data['id'],
                 data['user_id'],
                 data['broker_id']
@@ -262,7 +269,7 @@ class UsersRepo:
             raise HTTPException(status_code=500, detail="Database connection failed")
 
         mycursor = conn.cursor()
-        query = """SELECT id, name FROM Broker"""
+        query = """SELECT id, name, createdBy, createdDate,modifiedBy,lastUpdatedDateTime FROM Broker"""
         
         try:
             mycursor.execute(query)  # Execute the query without needing 'values'
@@ -271,7 +278,7 @@ class UsersRepo:
             result = mycursor.fetchall()
             
             # Format the result as a list of dictionaries
-            modules = [{"id": str(row[0]), "name": row[1]} for row in result]
+            modules = [{"id": str(row[0]), "name": row[1], "createdBy":str(row[2]),"createdDate":row[3],"modifiedBy":str(row[4]),"lastUpdatedDateTime":row[5]} for row in result]
             
             return modules  # Return the formatted result
         
@@ -293,11 +300,12 @@ class UsersRepo:
         mycursor = conn.cursor()
         query = """
         INSERT INTO broker (
-            name
-        ) VALUES (%s)
+            name,createdBy
+        ) VALUES (%s,%s)
         """
         values = (
             data['name'],
+            data['createdBy'],
         )
         
         try:
@@ -334,11 +342,13 @@ class UsersRepo:
             update_query = """
                 UPDATE broker
                 SET 
-                    name = %s
+                    name = %s,
+                    modifiedBy = %s
                 WHERE id = %s
             """
             values = (
                 data['name'],
+                data['modifiedBy'],
                 data['id']
             )
             
@@ -387,8 +397,8 @@ class UsersRepo:
         mycursor = conn.cursor()
 
         # Initialize the list of columns and values to be inserted
-        columns = ["user_id", "billing_type"]
-        values = [data['user_id'], data['billing_type']]
+        columns = ["user_id", "billing_type", "createdBy"]
+        values = [data['user_id'], data['billing_type'], data.get('createdBy')]
 
         # Add profit_sharing_type only if not already in the list (based on billing_type)
         if data['billing_type'] == 'profit sharing':
@@ -444,15 +454,16 @@ class UsersRepo:
             if data.get('profit_sharing_type') == 'slab' and data.get('billing_type') == 'profit sharing':
                 for slab in data['profit_sharing_slabs']:
                     slab_query = """
-                        INSERT INTO ProfitSharingSlabs (billing_id, `from`, `to`, profit_percent, less_percent)
-                        VALUES (%s, %s, %s, %s, %s)
+                        INSERT INTO ProfitSharingSlabs (billing_id, `from`, `to`, profit_percent, less_percent,createdBy)
+                        VALUES (%s, %s, %s, %s, %s,%s)
                     """
                     slab_values = (
                         billing_id,
                         slab['from'],
                         slab['to'],
                         slab['profit_percent'],
-                        slab['less_percent']
+                        slab['less_percent'],
+                        slab['createdBy']
                     )
                     mycursor.execute(slab_query, slab_values)
 
@@ -478,7 +489,7 @@ class UsersRepo:
         if conn is None:
             raise HTTPException(status_code=500, detail="Database connection failed")
         mycursor = conn.cursor()
-        query = """SELECT id, name FROM Modules"""
+        query = """SELECT id, name,createdBy, createdDate,modifiedBy,lastUpdatedDateTime FROM Modules"""
         
         try:
             mycursor.execute(query)  # Execute the query without needing 'values'
@@ -487,7 +498,7 @@ class UsersRepo:
             result = mycursor.fetchall()
             
             # Format the result as a list of dictionaries
-            modules = [{"id": str(row[0]), "name": row[1]} for row in result]
+            modules = [{"id": str(row[0]), "name": row[1], "createdBy":str(row[2]),"createdDate":row[3],"modifiedBy":str(row[4]),"lastUpdatedDateTime":row[5]} for row in result]
             
             return modules  # Return the formatted result
         
@@ -509,11 +520,11 @@ class UsersRepo:
         mycursor = conn.cursor()
         query = """
         INSERT INTO Modules (
-            name
-        ) VALUES (%s)
+            name,createdBy
+        ) VALUES (%s,%s)
         """
         values = (
-            data['name'],
+            data['name'],data['createdBy'],
         )
         
         try:
@@ -544,8 +555,8 @@ class UsersRepo:
         
         query = """
         INSERT INTO UserAccessModules (
-            user_id, module_id, enabled
-        ) VALUES (%s, %s, %s)
+            user_id, module_id, enabled,createdBy
+        ) VALUES (%s, %s, %s, %s)
         """
         
         inserted_data = []  # This will hold the results to return
@@ -553,7 +564,7 @@ class UsersRepo:
         try:
             for entry in data:
                 # Insert data
-                values = (entry['user_id'], entry['module_id'], entry['enabled'])
+                values = (entry['user_id'], entry['module_id'], entry['enabled'],entry['createdBy'])
                 mycursor.execute(query, values)
                 
                 # After executing the insert, fetch the generated ID for the current row
@@ -564,7 +575,8 @@ class UsersRepo:
                     'id': inserted_id,
                     'user_id': entry['user_id'],
                     'module_id': entry['module_id'],
-                    'enabled': entry['enabled']
+                    'enabled': entry['enabled'],
+                    'createdBy':entry['createdBy']
                 })
             
             # Commit the transaction after all inserts
@@ -591,7 +603,8 @@ class UsersRepo:
         mycursor = conn.cursor()
         query = """SELECT id, username, password, email, emailVerificationStatus, 
                           first_name, middle_name, last_name, mobile, mobileVerificationStatus, 
-                          address, dateofbirth, risk_profile, last_login, is_active 
+                          address, dateofbirth, risk_profile, last_login, is_active ,
+                          createdBy, createdDate,modifiedBy,lastUpdatedDateTime
                    FROM User"""
         
         try:
@@ -616,7 +629,11 @@ class UsersRepo:
                 "dateofbirth": row[11], 
                 "risk_profile": row[12], 
                 "last_login": row[13], 
-                "is_active": row[14]
+                "is_active": row[14],
+                "createdBy":str(row[15]),
+                "createdDate":row[16],
+                "modifiedBy":str(row[17]),
+                "lastUpdatedDateTime":row[18]
             } for row in result]
             
             return users  # This return should be inside the method
@@ -638,7 +655,7 @@ class UsersRepo:
             raise HTTPException(status_code=500, detail="Database connection failed")
         mycursor = conn.cursor()
         query = """SELECT id,user_id, broker_id, API_Key, API_Secret, market_api_key, 
-                          market_api_secret
+                          market_api_secret, createdBy, createdDate,modifiedBy,lastUpdatedDateTime
                    FROM UserBrokers"""
         
         try:
@@ -655,7 +672,11 @@ class UsersRepo:
                 "API_Key": row[3], 
                 "API_Secret": row[4],
                 "market_api_key": row[5], 
-                "market_api_secret": row[6]
+                "market_api_secret": row[6],
+                "createdBy":str(row[7]),
+                "createdDate":row[8],
+                "modifiedBy":str(row[9]),
+                "lastUpdatedDateTime":row[10]
             } for row in result]
             
             return users  # This return should be inside the method
