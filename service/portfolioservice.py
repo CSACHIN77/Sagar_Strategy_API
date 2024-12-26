@@ -63,7 +63,7 @@ class Portfolioservice:
         #print(data)
     
         # Create Portfolio object
-        portfolio = Portfolio(id=self.data.get('id'), name=self.data.get('name'),createdBy=self.data.get('createdBy',0),modifiedBy=self.data.get('modifiedBy',0))
+        portfolio = Portfolio(id=self.data.get('id'), name=self.data.get('name'),createdBy=self.data.get('createdBy',1),modifiedBy=self.data.get('modifiedBy',1))
         #print(data['strategies'])
         print(portfolio)
         # Iterate over each strategy in the data

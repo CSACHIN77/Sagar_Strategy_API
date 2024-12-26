@@ -56,10 +56,11 @@ async def registeruser(data: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 #Edit User Details
-@app.post("/edituser", response_model=dict)
-async def edituser(data: dict):
+@app.put("/edituser/{user_id}", response_model=dict)
+async def edituser(user_id: int, data: dict):
     try:
-        print(type(data))
+        print(f"Editing user with ID: {user_id}")
+        data['id'] = user_id  # Assign the user_id from the URL to the data
         user_service = UserService(data)
         user_id = user_service.edituser(data)
         return user_id
@@ -79,11 +80,12 @@ async def addUserBroker(data: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 #Edit User Broker
-@app.post("/editUserBroker", response_model=dict)
-async def editUserBroker(data: dict):
+@app.post("/editUserBroker/{user_id}", response_model=dict)
+async def editUserBroker(user_id: int, data: dict):
 
     try:
-        print(type(data))
+        print(f"Editing user with ID: {user_id}")
+        data['id'] = user_id  # Assign the user_id from the URL to the data
         user_service = UserService(data)
         user_id = user_service.editUserBroker(data)
         return user_id
@@ -91,11 +93,12 @@ async def editUserBroker(data: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 #Delete User Broker
-@app.post("/deleteUserBroker", response_model=dict)
-async def deleteUserBroker(data: dict):
+@app.post("/deleteUserBroker/{user_id}", response_model=dict)
+async def deleteUserBroker(user_id: int, data: dict):
     
     try:
-        print(type(data))
+        print(f"Editing user with ID: {user_id}")
+        data['id'] = user_id  # Assign the user_id from the URL to the data
         user_service = UserService(data)
         user_id = user_service.deleteUserBroker(data)
         return user_id
@@ -116,11 +119,11 @@ async def addBroker(data: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 #Edit Broker
-@app.post("/editBroker", response_model=dict)
-async def editBroker(data: dict):
-
+@app.put("/editBroker/{user_id}", response_model=dict)
+async def editBroker(user_id: int, data: dict):
     try:
-        print(type(data))
+        print(f"Editing user with ID: {user_id}")
+        data['id'] = user_id  # Assign the user_id from the URL to the data
         user_service = UserService(data)
         user_id = user_service.editBroker(data)
         return user_id
@@ -128,11 +131,12 @@ async def editBroker(data: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 #Delete Broker
-@app.post("/deleteBroker", response_model=dict)
-async def deleteBroker(data: dict):
+@app.post("/deleteBroker/{user_id}", response_model=dict)
+async def deleteBroker(user_id: int, data: dict):
     
     try:
-        print(type(data))
+        print(f"Editing user with ID: {user_id}")
+        data['id'] = user_id  # Assign the user_id from the URL to the data
         user_service = UserService(data)
         user_id = user_service.deleteBroker(data)
         return user_id

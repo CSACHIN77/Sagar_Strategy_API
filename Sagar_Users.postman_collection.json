@@ -28,18 +28,18 @@
 		{
 			"name": "Edit User",
 			"request": {
-				"method": "POST",
+				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id\": \"1\",\r\n    \"username\": \"ajay.sawant31\",\r\n    \"password\": \"AB171\",\r\n    \"email\": \"ab1a112d3@gmail.com\",\r\n    \"emailVerificationStatus\": \"true\",\r\n    \"first_name\": \"ab2e\",\r\n    \"middle_name\": \"teste2\",\r\n    \"last_name\": \"satrae2\",\r\n    \"mobile\": \"566627\",\r\n    \"mobileVerificationStatus\": \"false\",\r\n    \"address\": \"mumbai 1/31 sanman\",\r\n    \"dateofbirth\": \"2024-10-28\",\r\n    \"risk_profile\": \"3\",\r\n    \"last_login\": \"2024-10-28 14:30:00\",\r\n    \"is_active\": \"true\"\r\n}",
+					"raw": "{\r\n    \"username\": \"ajay.qcq1\",\r\n    \"password\": \"AB171\",\r\n    \"email\": \"ab1a112d3@gmail.com\",\r\n    \"emailVerificationStatus\": \"true\",\r\n    \"first_name\": \"ab2e\",\r\n    \"modifiedBy\": \"5\",\r\n    \"middle_name\": \"teste2\",\r\n    \"last_name\": \"satrae2\",\r\n    \"mobile\": \"1231324\",\r\n    \"mobileVerificationStatus\": \"false\",\r\n    \"address\": \"mumbai 1/31 sanman\",\r\n    \"dateofbirth\": \"2024-10-28\",\r\n    \"risk_profile\": \"3\",\r\n    \"last_login\": \"2024-10-28 14:30:00\",\r\n    \"is_active\": \"true\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
 						}
 					}
 				},
-				"url": "http://127.0.0.1:8080/edit"
+				"url": "http://127.0.0.1:8080/edituser/1"
 			},
 			"response": []
 		},
@@ -118,18 +118,18 @@
 		{
 			"name": "EditBroker",
 			"request": {
-				"method": "POST",
+				"method": "PUT",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"id\" : \"3\",\r\n    \"name\" : \"Testa\"\r\n}",
+					"raw": "{\r\n    \"id\" : \"6\",\r\n    \"name\" : \"Testa\",\r\n    \"modifiedBy\":\"6\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
 						}
 					}
 				},
-				"url": "http://127.0.0.1:8080/editBroker"
+				"url": "http://127.0.0.1:8080/editBroker/1"
 			},
 			"response": []
 		},

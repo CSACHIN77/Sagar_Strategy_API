@@ -227,7 +227,7 @@ def create_database():
         # Execute the query
         cursor.execute(alter_leg_query)
         print("Table 'portfoliostrategyvariableslegs' updated successfully.")
-
+        
         #ALTER TABLE User
         alter_strategy_query = """
         ALTER TABLE User
