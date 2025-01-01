@@ -3,7 +3,7 @@ import mysql.connector
 from mysql.connector import Error
 import os
 import sys
-
+from fastapi import FastAPI, HTTPException, Query
 
 try:
     current_dir = os.path.dirname(os.path.abspath(__file__))  # Get the absolute path of the current script

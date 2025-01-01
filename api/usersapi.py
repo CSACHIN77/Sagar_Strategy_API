@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Query
+
 from pydantic import BaseModel
 from typing import List, Any, Optional, Dict, Union
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,7 +33,10 @@ app = FastAPI()
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+   allow_origins=[
+        "http://127.0.0.1:8080",  # Include 127.0.0.1 with the specific port
+        "http://localhost:3000",  # Include localhost with the specific port
+    ],  
     allow_credentials=True,
     allow_methods=["*"],  
     allow_headers=["*"],  
