@@ -240,6 +240,15 @@
 				"url": "http://127.0.0.1:8080/getAllUserBroker"
 			},
 			"response": []
+		},
+		{
+			"name": "GET SINGLE USER",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8080/getUser/1"
+			},
+			"response": []
 		}
 	]
 }
