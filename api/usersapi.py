@@ -231,6 +231,21 @@ async def getAllUsers():
         # Handle unexpected exceptions and provide error response
         raise HTTPException(status_code=500, detail=str(e))
 
+#GET SINGLE USERS
+@app.get("/getUser/{user_id}", response_model=dict)
+async def getUser(user_id: int):
+    try:
+        # Pass the user_id directly to the UserService
+        user_service = UserService({"id": user_id})
+        user = user_service.getUser()
+        return user
+    except HTTPException as e:
+        # Re-raise HTTPExceptions to return the correct status code
+        raise e
+    except Exception as e:
+        # Catch other exceptions and return a 500 error
+        raise HTTPException(status_code=500, detail=str(e))
+
 #GET ALL USERS
 @app.get("/getAllUserBroker", response_model=list)
 async def getAllUserBroker():

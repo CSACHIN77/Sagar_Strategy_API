@@ -91,3 +91,8 @@ class UserService:
         repo = UsersRepo(data)
         values = repo.getAllUserBroker()
         return values
+    
+    def getUser(self):
+        repo = UsersRepo(self.data)
+        values = repo.getUser(self.data)
+        return values
