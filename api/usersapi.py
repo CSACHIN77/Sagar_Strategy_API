@@ -250,6 +250,36 @@ async def getUser(user_id: int):
         # Catch other exceptions and return a 500 error
         raise HTTPException(status_code=500, detail=str(e))
 
+#GET Billing USERS
+@app.get("/getBilling/{user_id}", response_model=list)
+async def getBilling(user_id: int):
+    try:
+        # Pass the user_id directly to the UserService
+        user_service = UserService({"user_id": user_id})
+        user = user_service.getBilling()
+        return user
+    except HTTPException as e:
+        # Re-raise HTTPExceptions to return the correct status code
+        raise e
+    except Exception as e:
+        # Catch other exceptions and return a 500 error
+        raise HTTPException(status_code=500, detail=str(e))
+
+#GET Billing USERS
+@app.get("/getUserAccessModules/{user_id}", response_model=list)
+async def getUserAccessModules(user_id: int):
+    try:
+        # Pass the user_id directly to the UserService
+        user_service = UserService({"user_id": user_id})
+        user = user_service.getUserAccessModules()
+        return user
+    except HTTPException as e:
+        # Re-raise HTTPExceptions to return the correct status code
+        raise e
+    except Exception as e:
+        # Catch other exceptions and return a 500 error
+        raise HTTPException(status_code=500, detail=str(e))
+
 #GET ALL USERS
 @app.get("/getAllUserBroker", response_model=list)
 async def getAllUserBroker():

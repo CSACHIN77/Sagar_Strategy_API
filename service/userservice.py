@@ -96,3 +96,13 @@ class UserService:
         repo = UsersRepo(self.data)
         values = repo.getUser(self.data)
         return values
+
+    def getBilling(self):
+        repo = UsersRepo(self.data)
+        values = repo.getBilling(self.data)
+        return values
+
+    def getUserAccessModules(self):
+        repo = UsersRepo(self.data)
+        values = repo.getUserAccessModules(self.data)
+        return values

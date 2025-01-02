@@ -249,6 +249,23 @@
 				"url": "http://127.0.0.1:8080/getUser/1"
 			},
 			"response": []
+		},
+		{
+			"name": "GetBilling by userid",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Get useraccessmofules by user_id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:8080/getUserAccessModules/1"
+			},
+			"response": []
 		}
 	]
 }

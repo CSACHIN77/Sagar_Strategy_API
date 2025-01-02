@@ -703,6 +703,94 @@ class UsersRepo:
                 mycursor.close()
                 conn.close()
 
+    def getBilling(self,data):
+        conn = connect_to_users_db()
+        print(f"user id is {self.data["user_id"]}")
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+        mycursor = conn.cursor()
+        query = """SELECT id,user_id, billing_type, one_time_fee, subscription_type, subscription_fee, 
+                          profit_sharing_type,profit_sharing_flat_profit_percent,profit_sharing_flat_less_percent, createdBy, createdDate,modifiedBy,lastUpdatedDateTime
+                   FROM Billing WHERE user_id = %s"""
+        
+        try:
+            user_id = self.data["user_id"]  # Ensure 'id' is extracted correctly
+            mycursor.execute(query, (user_id,))
+  # Execute the query without needing 'values'
+            
+            # Fetch all rows from the result set
+            result = mycursor.fetchall()
+            
+            # Format the result as a list of dictionaries
+            users = [{
+                "id": str(row[0]), 
+                "user_id": row[1], 
+                "billing_type": row[2], 
+                "one_time_fee": row[3], 
+                "subscription_type": row[4],
+                "subscription_fee": row[5], 
+                "profit_sharing_type": row[6],
+                "profit_sharing_flat_profit_percent": row[7],
+                "profit_sharing_flat_less_percent": row[8],
+                "createdBy":str(row[9]),
+                "createdDate":row[10],
+                "modifiedBy":str(row[11]),
+                "lastUpdatedDateTime":row[12]
+            } for row in result]
+            
+            return users  # This return should be inside the method
+        
+        except Error as e:
+            error_message = f"Error: {e}"
+            print(error_message)
+            return {"error": error_message}
+        
+        finally:
+            if conn.is_connected():
+                mycursor.close()
+                conn.close()
+
+    def getUserAccessModules(self,data):
+        conn = connect_to_users_db()
+        print(f"user id is {self.data["user_id"]}")
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+        mycursor = conn.cursor()
+        query = """SELECT id,user_id, module_id, enabled, createdBy, createdDate,modifiedBy,lastUpdatedDateTime
+                   FROM useraccessmodules WHERE user_id = %s"""
+        
+        try:
+            user_id = self.data["user_id"]  # Ensure 'id' is extracted correctly
+            mycursor.execute(query, (user_id,))
+  # Execute the query without needing 'values'
+            
+            # Fetch all rows from the result set
+            result = mycursor.fetchall()
+            
+            # Format the result as a list of dictionaries
+            users = [{
+                "id": str(row[0]), 
+                "user_id": row[1], 
+                "module_id": row[2], 
+                "enabled": bool(row[3]),
+                "createdBy":str(row[4]),
+                "createdDate":row[5],
+                "modifiedBy":str(row[6]),
+                "lastUpdatedDateTime":row[7]
+            } for row in result]
+            
+            return users  # This return should be inside the method
+        
+        except Error as e:
+            error_message = f"Error: {e}"
+            print(error_message)
+            return {"error": error_message}
+        
+        finally:
+            if conn.is_connected():
+                mycursor.close()
+                conn.close()
+
     def getAllUserBroker(self):
         conn = connect_to_users_db()
 
