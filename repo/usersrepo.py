@@ -483,6 +483,116 @@ class UsersRepo:
             if conn.is_connected():
                 mycursor.close()
 
+    def editBilling(self, data):
+        conn = connect_to_users_db()
+        billing_id = data['id']
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+        
+        mycursor = conn.cursor()
+
+        # Prepare the columns and values to be updated
+        columns = ["user_id", "billing_type", "modifiedBy"]
+        values = [data['user_id'], data['billing_type'], data.get('modifiedBy', 1)]
+
+        # Add profit_sharing_type if it exists in the request data
+        if data.get('billing_type') == 'profit sharing':
+            columns.append("profit_sharing_type")
+            values.append(data['profit_sharing_type'])
+
+        # Add one_time_fee based on billing_type condition
+        if data['billing_type'] == 'one time':
+            columns.append("one_time_fee")
+            values.append(data.get('one_time_fee', 0))  # Default to 0 if not provided
+        else:
+            # Set one_time_fee to 0 if not 'one time'
+            columns.append("one_time_fee")
+            values.append(0)
+
+        # If the billing_type is 'subscription', include subscription_type and subscription_fee
+        if data['billing_type'] == 'subscription':
+            columns.extend(["subscription_type", "subscription_fee"])
+            values.extend([data.get('subscription_type'), data.get('subscription_fee') or None])  # Default to None if empty
+        else:
+            # Set subscription_type and subscription_fee to None for other billing types
+            columns.extend(["subscription_type", "subscription_fee"])
+            values.extend([None, None])
+
+        # If the profit_sharing_type is 'flat', include profit_sharing_flat_profit_percent and profit_sharing_flat_less_percent
+        if data.get('profit_sharing_type') == 'flat' and data.get('billing_type') == 'profit sharing':
+            columns.extend(["profit_sharing_flat_profit_percent", "profit_sharing_flat_less_percent"])
+            values.extend([data.get('profit_sharing_flat_profit_percent') or None, 
+                        data.get('profit_sharing_flat_less_percent') or None])
+        else:
+            # Set profit sharing flat percentages to None if profit_sharing_type is not 'flat'
+            columns.extend(["profit_sharing_flat_profit_percent", "profit_sharing_flat_less_percent"])
+            values.extend([None, None])
+
+        # Construct the SQL query dynamically based on columns and values
+        set_query = ", ".join([f"{col} = %s" for col in columns])
+        update_query = f"""
+        UPDATE billing
+        SET {set_query}
+        WHERE id = %s
+        """
+        values.append(billing_id)
+
+        try:
+            # Execute the update query with the provided values
+            mycursor.execute(update_query, values)
+            
+            # Check if we need to delete profit sharing slabs
+            # If the profit_sharing_type is 'slab', insert into ProfitSharingSlabs
+            if data.get('profit_sharing_type') == 'slab' and data.get('billing_type') == 'profit sharing':
+                # First, delete the existing slabs for this billing_id
+                delete_slab_query = """
+                    DELETE FROM ProfitSharingSlabs 
+                    WHERE billing_id = %s
+                """
+                mycursor.execute(delete_slab_query, (billing_id,))
+                
+                # Now, insert the new slabs provided in the request
+                for slab in data['profit_sharing_slabs']:
+                    slab_query = """
+                        INSERT INTO ProfitSharingSlabs (billing_id, `from`, `to`, profit_percent, less_percent, createdBy)
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """
+                    slab_values = (
+                        billing_id,
+                        slab['from'],
+                        slab['to'],
+                        slab['profit_percent'],
+                        slab['less_percent'],
+                        slab.get('createdBy', 1)
+                    )
+                    mycursor.execute(slab_query, slab_values)
+            
+            elif data.get('profit_sharing_type') != 'slab' and data.get('billing_type') == 'profit sharing':
+                # If 'profit_sharing_type' is changed and is no longer 'slab', delete related slabs
+                delete_slab_query = """
+                    DELETE FROM ProfitSharingSlabs 
+                    WHERE billing_id = %s
+                """
+                mycursor.execute(delete_slab_query, (billing_id,))
+
+            # Commit the transaction to save the updated data
+            conn.commit()
+
+            return data
+
+        except Error as e:
+            # Handle any errors during execution
+            error_message = f"Error: {e}"
+            print(error_message)
+            return {"error": error_message}
+
+        finally:
+            # Ensure the cursor is closed after execution
+            if conn.is_connected():
+                mycursor.close()
+                conn.close()
+
+
     def getAllModules(self):
         conn = connect_to_users_db()
 
@@ -595,6 +705,48 @@ class UsersRepo:
             if conn.is_connected():
                 mycursor.close()
     
+    def editUserAccessModules(self,data):
+        conn = connect_to_users_db()
+
+        if conn is None:
+            raise HTTPException(status_code=500, detail="Database connection failed")
+
+        mycursor = conn.cursor()
+        check_query = "SELECT * FROM UserAccessModules WHERE id = %s"
+        mycursor.execute(check_query, (data['id'],))
+        result = mycursor.fetchone()
+        if result:
+        # Prepare the update query
+            update_query = """
+                UPDATE UserAccessModules
+                SET 
+                    user_id = %s,
+                    module_id = %s,
+                    enabled = %s,
+                    modifiedBy=%s
+                WHERE id = %s
+            """
+            values = (
+                data['user_id'],
+                data['module_id'],
+                data['enabled'],
+                data.get('modifiedBy',1),
+                data['id']
+            )
+            
+            try:
+                mycursor.execute(update_query, values)
+                conn.commit()  # Commit the changes
+                return {'id': data['id'], 'update_status': True}
+            except Exception as e:
+                conn.rollback()  # Rollback in case of error
+                return {'id': data['id'], 'update_status': False, 'error': str(e)}
+        else:
+            return {'id': data['id'], 'update_status': False, 'error': 'ID not found.'}
+
+        # Close the cursor
+        mycursor.close()
+
     def getAllUsers(self):
         conn = connect_to_users_db()
 
@@ -703,43 +855,76 @@ class UsersRepo:
                 mycursor.close()
                 conn.close()
 
-    def getBilling(self,data):
+    def getBilling(self, data):
         conn = connect_to_users_db()
-        print(f"user id is {self.data["user_id"]}")
+
         if conn is None:
             raise HTTPException(status_code=500, detail="Database connection failed")
+        
         mycursor = conn.cursor()
-        query = """SELECT id,user_id, billing_type, one_time_fee, subscription_type, subscription_fee, 
-                          profit_sharing_type,profit_sharing_flat_profit_percent,profit_sharing_flat_less_percent, createdBy, createdDate,modifiedBy,lastUpdatedDateTime
-                   FROM Billing WHERE user_id = %s"""
+        query = """SELECT id, user_id, billing_type, one_time_fee, subscription_type, subscription_fee, 
+                        profit_sharing_type, profit_sharing_flat_profit_percent, profit_sharing_flat_less_percent, 
+                        createdBy, createdDate, modifiedBy, lastUpdatedDateTime
+                FROM Billing 
+                WHERE user_id = %s"""
         
         try:
-            user_id = self.data["user_id"]  # Ensure 'id' is extracted correctly
+            user_id = data["user_id"]  # Correctly using 'data' to get the user_id
             mycursor.execute(query, (user_id,))
-  # Execute the query without needing 'values'
             
             # Fetch all rows from the result set
             result = mycursor.fetchall()
             
-            # Format the result as a list of dictionaries
-            users = [{
-                "id": str(row[0]), 
-                "user_id": row[1], 
-                "billing_type": row[2], 
-                "one_time_fee": row[3], 
-                "subscription_type": row[4],
-                "subscription_fee": row[5], 
-                "profit_sharing_type": row[6],
-                "profit_sharing_flat_profit_percent": row[7],
-                "profit_sharing_flat_less_percent": row[8],
-                "createdBy":str(row[9]),
-                "createdDate":row[10],
-                "modifiedBy":str(row[11]),
-                "lastUpdatedDateTime":row[12]
-            } for row in result]
+            users = []  # Initialize an empty list for formatted result
             
-            return users  # This return should be inside the method
-        
+            for row in result:
+                # Format the billing data
+                billing_data = {
+                    "id": str(row[0]), 
+                    "user_id": row[1], 
+                    "billing_type": row[2], 
+                    "one_time_fee": row[3], 
+                    "subscription_type": row[4],
+                    "subscription_fee": row[5], 
+                    "profit_sharing_type": row[6],
+                    "profit_sharing_flat_profit_percent": row[7],
+                    "profit_sharing_flat_less_percent": row[8],
+                    "createdBy": str(row[9]),
+                    "createdDate": row[10],
+                    "modifiedBy": str(row[11]),
+                    "lastUpdatedDateTime": row[12]
+                }
+                
+                # Fetch the profit sharing slabs if the condition matches
+                if row[6] == 'slab' and row[2] == 'profit sharing':  # profit_sharing_type == 'slab' and billing_type == 'profit sharing'
+                    slabs_query = """SELECT id,billing_id,`from`, `to`, profit_percent, less_percent, createdBy,createdDate, modifiedBy, lastUpdatedDateTime
+                                    FROM ProfitSharingSlabs 
+                                    WHERE billing_id = %s"""
+                    mycursor.execute(slabs_query, (row[0],))  # row[0] is the billing_id (id)
+                    slabs_result = mycursor.fetchall()
+                    
+                    # Format the profit sharing slabs data
+                    slabs = [{
+                        "id": slab[0],
+                        "billing_id": slab[1],
+                        "from": slab[2],
+                        "to": slab[3],
+                        "profit_percent": slab[4],
+                        "less_percent": slab[5],
+                        "createdBy": slab[6],
+                        "createdDate": slab[7],
+                        "modifiedBy": slab[8],
+                        "lastUpdatedDateTime": slab[9]
+                    } for slab in slabs_result]
+                    
+                    # Add the slabs data to the billing data
+                    billing_data["profit_sharing_slabs"] = slabs
+                
+                # Add the formatted billing data to the list
+                users.append(billing_data)
+            
+            return users  # Return the list of users with billing data and slabs
+
         except Error as e:
             error_message = f"Error: {e}"
             print(error_message)

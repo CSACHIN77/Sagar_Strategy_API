@@ -86,7 +86,7 @@ def create_database():
         create_profit_sharing_slabs_table_query = """
         CREATE TABLE IF NOT EXISTS ProfitSharingSlabs (
             id INT AUTO_INCREMENT UNIQUE,
-            billing_id INT NOT NULL UNIQUE,
+            billing_id INT NOT NULL,
             `from` DECIMAL(10, 2) ,
             `to` DECIMAL(10, 2) ,
             profit_percent DECIMAL(10, 2) ,

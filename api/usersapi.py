@@ -176,6 +176,20 @@ async def addBilling(data: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+#Edit Billing
+@app.put("/editBilling/{user_id}", response_model=dict)
+async def editBilling(user_id: int, data: dict):
+
+    try:
+        print(f"Editing user with ID: {user_id}")
+        data['id'] = user_id  # Assign the user_id from the URL to the data
+        user_service = UserService(data)
+        user_id = user_service.editBilling(data)
+        return user_id
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 #Add Modules
 @app.post("/addModules", response_model=dict)
 async def addModules(data: dict):
@@ -219,6 +233,19 @@ async def addUserAccessModules(data: List[dict]):
 
     except Exception as e:
         # Handle unexpected exceptions and provide error response
+        raise HTTPException(status_code=500, detail=str(e))
+
+#Edit UserAccessModules
+@app.put("/editUserAccessModules/{user_id}", response_model=dict)
+async def editUserAccessModules(user_id: int, data: dict):
+
+    try:
+        print(f"Editing user with ID: {user_id}")
+        data['id'] = user_id  # Assign the user_id from the URL to the data
+        user_service = UserService(data)
+        user_id = user_service.editUserAccessModules(data)
+        return user_id
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 #GET ALL USERS

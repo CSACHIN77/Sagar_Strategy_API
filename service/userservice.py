@@ -61,6 +61,11 @@ class UserService:
         repo = UsersRepo(data)
         values = repo.addBilling(data)
         return values
+
+    def editBilling(self,data):
+        repo = UsersRepo(data)
+        values = repo.editBilling(data)
+        return values
     
     def getAllBrokers(self,data):
         repo = UsersRepo(data)
@@ -72,9 +77,14 @@ class UserService:
         values = repo.addModules(data)
         return values
 
-    def addUserAccessModules(self,data):
+    def editUserAccessModules(self,data):
         repo = UsersRepo(data)
-        values = repo.addUserAccessModules(data)
+        values = repo.editUserAccessModules(data)
+        return values
+
+    def editBilling(self,data):
+        repo = UsersRepo(data)
+        values = repo.editBilling(data)
         return values
 
     def getAllModules(self,data):
