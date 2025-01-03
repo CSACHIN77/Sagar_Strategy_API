@@ -266,6 +266,33 @@
 				"url": "http://127.0.0.1:8080/getUserAccessModules/1"
 			},
 			"response": []
+		},
+		{
+			"name": "EditBilling",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": "http://127.0.0.1:8080/editBilling/2"
+			},
+			"response": []
+		},
+		{
+			"name": "EditUserAccessModules",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_id\": \"1\",\r\n    \"module_id\": \"1\",\r\n    \"enabled\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:8080/editUserAccessModules/3"
+			},
+			"response": []
 		}
 	]
 }
